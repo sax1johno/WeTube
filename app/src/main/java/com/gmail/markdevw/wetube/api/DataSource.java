@@ -15,4 +15,8 @@ public class DataSource {
     public DataSource(){
         videos = new ArrayList<>();
     }
+
+    public List<VideoItem> getVideos(){
+        return videos;
+    }
 }
