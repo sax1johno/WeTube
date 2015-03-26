@@ -5,8 +5,12 @@ package com.gmail.markdevw.wetube.api.model;
  */
 public class VideoItem {
 
-    public VideoItem(){
+    String title;
+    String description;
 
+    public VideoItem(){
+        title = "Video title";
+        description = "Video description";
     }
 }
 
