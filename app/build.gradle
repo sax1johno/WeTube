@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "com.gmail.markdevw.wetube"
-        minSdkVersion 9
+        minSdkVersion 15
         targetSdkVersion 21
     }
 

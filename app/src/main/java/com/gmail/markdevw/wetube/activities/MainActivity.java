@@ -9,6 +9,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.gmail.markdevw.wetube.R;
@@ -23,6 +24,8 @@ public class MainActivity extends Activity implements View.OnClickListener{
 
     Button searchButton;
     EditText searchBox;
+    ImageButton prevPage;
+    ImageButton nextPage;
     RecyclerView recyclerView;
     VideoItemAdapter videoItemAdapter;
     Handler handler;
@@ -34,7 +37,11 @@ public class MainActivity extends Activity implements View.OnClickListener{
 
         searchButton = (Button) findViewById(R.id.activity_main_search_button);
         searchBox = (EditText) findViewById(R.id.activity_main_search_video);
+        prevPage = (ImageButton) findViewById(R.id.activity_main_prev_page);
+        nextPage = (ImageButton) findViewById(R.id.activity_main_next_page);
 
+        prevPage.setOnClickListener(this);
+        nextPage.setOnClickListener(this);
         searchButton.setOnClickListener(this);
 
         videoItemAdapter = new VideoItemAdapter();
@@ -50,20 +57,58 @@ public class MainActivity extends Activity implements View.OnClickListener{
     @Override
     public void onClick(View v) {
         final String search = searchBox.getText().toString();
-        if(search.isEmpty()){
-            Toast.makeText(this, "Enter a search keyword first", Toast.LENGTH_LONG).show();
-        }else{
-            new Thread(){
-                public void run(){
-                    WeTubeApplication.getSharedDataSource().searchForVideos(search);
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            videoItemAdapter.notifyDataSetChanged();
+
+        switch(v.getId()){
+            case R.id.activity_main_prev_page:
+                new Thread(){
+                    public void run(){
+                        WeTubeApplication.getSharedDataSource().searchForVideos(search, WeTubeApplication.getSharedDataSource().getPrevPageToken());
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                videoItemAdapter.notifyDataSetChanged();
+                                recyclerView.scrollToPosition(0);
+                               // getActionBar().setTitle("Page: " + WeTubeApplication.getSharedDataSource().getCurrentPage());
+                            }
+                        });
+                    }
+                }.start();
+                break;
+            case R.id.activity_main_next_page:
+                new Thread(){
+                    public void run(){
+                        WeTubeApplication.getSharedDataSource().searchForVideos(search, WeTubeApplication.getSharedDataSource().getNextPageToken());
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                videoItemAdapter.notifyDataSetChanged();
+                                recyclerView.scrollToPosition(0);
+                                //getActionBar().setTitle("Page: " + WeTubeApplication.getSharedDataSource().getCurrentPage());
+                            }
+                        });
+                    }
+                }.start();
+                break;
+            case R.id.activity_main_search_button:
+                if(search.isEmpty()){
+                    Toast.makeText(this, "Enter a search keyword first", Toast.LENGTH_LONG).show();
+                }else{
+                    new Thread(){
+                        public void run(){
+                            WeTubeApplication.getSharedDataSource().searchForVideos(search);
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    videoItemAdapter.notifyDataSetChanged();
+                                    prevPage.setVisibility(View.VISIBLE);
+                                    nextPage.setVisibility(View.VISIBLE);
+                                   // getActionBar().setTitle("Page: " + WeTubeApplication.getSharedDataSource().getCurrentPage());
+                                }
+                            });
                         }
-                    });
+                    }.start();
                 }
-            }.start();
+                break;
         }
     }
 }

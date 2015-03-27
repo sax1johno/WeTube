@@ -5,8 +5,16 @@
 
     <LinearLayout
         android:id="@+id/activity_main_linear_search"
-        android:layout_width="wrap_content"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
+        <ImageButton
+            android:id="@+id/activity_main_prev_page"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/activity_main_prev_page"
+            android:visibility="gone"/>
 
         <EditText
             android:id="@+id/activity_main_search_video"
@@ -21,6 +29,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Search"/>
+
+        <ImageButton
+            android:id="@+id/activity_main_next_page"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/activity_main_next_page"
+            android:visibility="gone"/>
 
     </LinearLayout>
 

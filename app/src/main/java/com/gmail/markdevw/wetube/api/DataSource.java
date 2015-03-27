@@ -25,6 +25,9 @@ public class DataSource {
     private List<VideoItem> videos;
     private YouTube youtube;
     private YouTube.Search.List query;
+    private int currentPage = 0;
+    private String prevPageToken;
+    private String nextPageToken;
 
     private final long NUMBER_OF_VIDEOS_RETURNED = 20;
 
@@ -40,7 +43,7 @@ public class DataSource {
             query = youtube.search().list("id,snippet");
             query.setKey(API_KEY);
             query.setType("video");
-            query.setFields("items(id/videoId,snippet/title,snippet/description,snippet/thumbnails/default/url)");
+            query.setFields("nextPageToken,prevPageToken,items(id/videoId,snippet/title,snippet/description,snippet/thumbnails/default/url)");
             query.setMaxResults(NUMBER_OF_VIDEOS_RETURNED);
         }catch(IOException e){
             Log.d("YC", "Could not initialize: " + e);
@@ -50,12 +53,24 @@ public class DataSource {
     public List<VideoItem> getVideos(){
         return videos;
     }
+    public int getCurrentPage(){ return currentPage; }
+    public void setCurrentPage(int currentPage) { this.currentPage = currentPage; }
+    public void setPrevPageToken(String prevPageToken){ this.prevPageToken = prevPageToken; }
+    public void setNextPageToken(String nextPageToken) { this.nextPageToken = nextPageToken; }
+    public String getPrevPageToken() { return prevPageToken; }
+    public String getNextPageToken() { return nextPageToken; }
 
     public void searchForVideos(String searchTerms){
         query.setQ(searchTerms);
         try{
             SearchListResponse response = query.execute();
             List<SearchResult> results = response.getItems();
+
+            setPrevPageToken(response.getPrevPageToken());
+            setNextPageToken(response.getNextPageToken());
+
+            videos.clear();
+            currentPage = 1;
 
             List<VideoItem> items = new ArrayList<VideoItem>();
             for(SearchResult result:results){
@@ -66,9 +81,38 @@ public class DataSource {
                 item.setId(result.getId().getVideoId());
                 videos.add(item);
             }
+
+            currentPage++;
         }catch(IOException e){
             Log.d("YC", "Could not search: "+e);
         }
     }
 
+    public void searchForVideos(String searchTerms, String pageToken){
+        query.setPageToken(pageToken);
+        query.setQ(searchTerms);
+        try{
+            SearchListResponse response = query.execute();
+            List<SearchResult> results = response.getItems();
+
+            setPrevPageToken(response.getPrevPageToken());
+            setNextPageToken(response.getNextPageToken());
+
+            videos.clear();
+
+            List<VideoItem> items = new ArrayList<VideoItem>();
+            for(SearchResult result:results){
+                VideoItem item = new VideoItem();
+                item.setTitle(result.getSnippet().getTitle());
+                item.setDescription(result.getSnippet().getDescription());
+                item.setThumbnailURL(result.getSnippet().getThumbnails().getDefault().getUrl());
+                item.setId(result.getId().getVideoId());
+                videos.add(item);
+            }
+
+            currentPage++;
+        }catch(IOException e){
+            Log.d("YC", "Could not search: "+e);
+        }
+    }
 }
