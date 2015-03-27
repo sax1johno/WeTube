@@ -81,14 +81,20 @@ public class DataSource {
                 item.setId(result.getId().getVideoId());
                 videos.add(item);
             }
-
-            currentPage++;
         }catch(IOException e){
             Log.d("YC", "Could not search: "+e);
         }
     }
 
     public void searchForVideos(String searchTerms, String pageToken){
+        if(pageToken == null){
+            return;
+        }else if(pageToken.equals(prevPageToken)){
+            currentPage--;
+        }else{
+            currentPage++;
+        }
+
         query.setPageToken(pageToken);
         query.setQ(searchTerms);
         try{
@@ -109,8 +115,6 @@ public class DataSource {
                 item.setId(result.getId().getVideoId());
                 videos.add(item);
             }
-
-            currentPage++;
         }catch(IOException e){
             Log.d("YC", "Could not search: "+e);
         }

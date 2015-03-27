@@ -1,11 +1,12 @@
 package com.gmail.markdevw.wetube.activities;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -20,7 +21,7 @@ import com.gmail.markdevw.wetube.adapters.VideoItemAdapter;
  * Created by Mark on 3/24/2015.
  */
 
-public class MainActivity extends Activity implements View.OnClickListener{
+public class MainActivity extends ActionBarActivity implements View.OnClickListener{
 
     Button searchButton;
     EditText searchBox;
@@ -29,16 +30,21 @@ public class MainActivity extends Activity implements View.OnClickListener{
     RecyclerView recyclerView;
     VideoItemAdapter videoItemAdapter;
     Handler handler;
+    Toolbar toolbar;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         searchButton = (Button) findViewById(R.id.activity_main_search_button);
         searchBox = (EditText) findViewById(R.id.activity_main_search_video);
         prevPage = (ImageButton) findViewById(R.id.activity_main_prev_page);
         nextPage = (ImageButton) findViewById(R.id.activity_main_next_page);
+        toolbar = (Toolbar) findViewById(R.id.tb_activity_main);
+
+        setSupportActionBar(toolbar);
 
         prevPage.setOnClickListener(this);
         nextPage.setOnClickListener(this);
@@ -52,6 +58,8 @@ public class MainActivity extends Activity implements View.OnClickListener{
         recyclerView.setAdapter(videoItemAdapter);
 
         handler = new Handler();
+
+
     }
 
     @Override
@@ -68,7 +76,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
                             public void run() {
                                 videoItemAdapter.notifyDataSetChanged();
                                 recyclerView.scrollToPosition(0);
-                               // getActionBar().setTitle("Page: " + WeTubeApplication.getSharedDataSource().getCurrentPage());
+                                toolbar.setTitle("Page: " + WeTubeApplication.getSharedDataSource().getCurrentPage());
                             }
                         });
                     }
@@ -83,7 +91,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
                             public void run() {
                                 videoItemAdapter.notifyDataSetChanged();
                                 recyclerView.scrollToPosition(0);
-                                //getActionBar().setTitle("Page: " + WeTubeApplication.getSharedDataSource().getCurrentPage());
+                                toolbar.setTitle("Page: " + WeTubeApplication.getSharedDataSource().getCurrentPage());
                             }
                         });
                     }
@@ -102,7 +110,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
                                     videoItemAdapter.notifyDataSetChanged();
                                     prevPage.setVisibility(View.VISIBLE);
                                     nextPage.setVisibility(View.VISIBLE);
-                                   // getActionBar().setTitle("Page: " + WeTubeApplication.getSharedDataSource().getCurrentPage());
+                                    toolbar.setTitle("Page: " + WeTubeApplication.getSharedDataSource().getCurrentPage());
                                 }
                             });
                         }
