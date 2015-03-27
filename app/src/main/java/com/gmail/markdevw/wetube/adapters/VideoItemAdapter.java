@@ -4,11 +4,14 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.gmail.markdevw.wetube.R;
 import com.gmail.markdevw.wetube.WeTubeApplication;
 import com.gmail.markdevw.wetube.api.DataSource;
 import com.gmail.markdevw.wetube.api.model.VideoItem;
+import com.squareup.picasso.Picasso;
 
 /**
  * Created by Mark on 3/26/2015.
@@ -33,14 +36,27 @@ public class VideoItemAdapter extends RecyclerView.Adapter<VideoItemAdapter.Item
 
     class ItemAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
+        ImageView thumbnail;
+        TextView title;
+        TextView description;
+        VideoItem videoItem;
 
         public ItemAdapterViewHolder(View itemView) {
             super(itemView);
 
+            thumbnail = (ImageView) itemView.findViewById(R.id.video_thumbnail);
+            title = (TextView) itemView.findViewById(R.id.video_title);
+            description = (TextView) itemView.findViewById(R.id.video_description);
+
+            itemView.setOnClickListener(this);
         }
 
         void update(VideoItem videoItem) {
+            this.videoItem = videoItem;
 
+            title.setText(videoItem.getTitle());
+            description.setText(videoItem.getDescription());
+            Picasso.with(WeTubeApplication.getSharedInstance()).load(videoItem.getThumbnailURL()).into(thumbnail);
         }
 
         @Override
