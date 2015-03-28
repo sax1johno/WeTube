@@ -5,21 +5,35 @@
 
     <ImageView
         android:id="@+id/video_thumbnail"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"/>
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="6dp"
+        android:scaleType="fitXY"/>
 
     <TextView
         android:id="@+id/video_title"
+        android:textStyle="bold"
+        android:textSize="25sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/video_thumbnail"/>
+        android:layout_below="@id/video_thumbnail"/>
 
     <TextView
         android:id="@+id/video_description"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/video_thumbnail"
+        android:layout_marginTop="4dp"
         android:layout_below="@id/video_title"/>
+
+    <View
+        android:id="@+id/point_item_horizontal_line"
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:layout_below="@id/video_description"
+        android:layout_marginTop="8dp"
+        android:background="@android:color/darker_gray"
+        android:layout_marginBottom="6dp"/>
 
 </RelativeLayout>

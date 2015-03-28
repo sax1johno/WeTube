@@ -28,7 +28,7 @@ public class DataSource {
     private int currentPage = 0;
     private String prevPageToken;
     private String nextPageToken;
-
+    private String currentSearch;
     private final long NUMBER_OF_VIDEOS_RETURNED = 20;
 
     public DataSource(Context context){
@@ -59,8 +59,11 @@ public class DataSource {
     public void setNextPageToken(String nextPageToken) { this.nextPageToken = nextPageToken; }
     public String getPrevPageToken() { return prevPageToken; }
     public String getNextPageToken() { return nextPageToken; }
+    public void setCurrentSearch(String search) {this.currentSearch = search; }
+    public String getCurrentSearch() { return this.currentSearch; }
 
     public void searchForVideos(String searchTerms){
+        setCurrentSearch(searchTerms);
         query.setQ(searchTerms);
         try{
             SearchListResponse response = query.execute();
