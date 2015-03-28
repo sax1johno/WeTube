@@ -13,10 +13,30 @@ import com.gmail.markdevw.wetube.api.DataSource;
 import com.gmail.markdevw.wetube.api.model.VideoItem;
 import com.squareup.picasso.Picasso;
 
+import java.lang.ref.WeakReference;
+
 /**
  * Created by Mark on 3/26/2015.
  */
 public class VideoItemAdapter extends RecyclerView.Adapter<VideoItemAdapter.ItemAdapterViewHolder> {
+
+    public static interface Delegate {
+        public void onItemClicked(VideoItemAdapter itemAdapter, VideoItem videoItem);
+    }
+
+    private WeakReference<Delegate> delegate;
+
+    public Delegate getDelegate() {
+        if (delegate == null) {
+            return null;
+        }
+        return delegate.get();
+    }
+    public void setDelegate(Delegate delegate) {
+        this.delegate = new WeakReference<Delegate>(delegate);
+    }
+
+
     @Override
     public ItemAdapterViewHolder onCreateViewHolder(ViewGroup viewGroup, int index) {
         View inflate = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.video_item, viewGroup, false);
@@ -61,9 +81,7 @@ public class VideoItemAdapter extends RecyclerView.Adapter<VideoItemAdapter.Item
 
         @Override
         public void onClick(View view) {
-            switch(view.getId()){
-
-            }
+            getDelegate().onItemClicked(VideoItemAdapter.this, videoItem);
         }
     }
 

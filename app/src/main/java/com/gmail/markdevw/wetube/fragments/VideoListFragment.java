@@ -10,23 +10,23 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 
 import com.gmail.markdevw.wetube.R;
 import com.gmail.markdevw.wetube.WeTubeApplication;
 import com.gmail.markdevw.wetube.adapters.VideoItemAdapter;
+import com.gmail.markdevw.wetube.api.model.VideoItem;
 
 /**
  * Created by Mark on 3/27/2015.
  */
-public class VideoListFragment extends Fragment {
+public class VideoListFragment extends Fragment implements VideoItemAdapter.Delegate {
 
     RecyclerView recyclerView;
     VideoItemAdapter videoItemAdapter;
     Delegate listener;
 
     public static interface Delegate {
-        public void onVideoItemClicked(SearchBarFragment searchBarFragment, Button searchButton);
+        public void onVideoItemClicked(VideoItemAdapter itemAdapter, VideoItem videoItem);
     }
 
     @Override
@@ -45,6 +45,7 @@ public class VideoListFragment extends Fragment {
         View inflate = inflater.inflate(R.layout.fragment_video_list, container, false);
 
         videoItemAdapter = new VideoItemAdapter();
+        videoItemAdapter.setDelegate(this);
 
         recyclerView = (RecyclerView) inflate.findViewById(R.id.rv_fragment_video_list);
         recyclerView.setLayoutManager(new LinearLayoutManager(WeTubeApplication.getSharedInstance()));
@@ -56,4 +57,9 @@ public class VideoListFragment extends Fragment {
 
     public VideoItemAdapter getVideoItemAdapter() { return videoItemAdapter; }
     public RecyclerView getRecyclerView() { return recyclerView; }
+
+    @Override
+    public void onItemClicked(VideoItemAdapter itemAdapter, VideoItem videoItem) {
+        listener.onVideoItemClicked(itemAdapter, videoItem);
+    }
 }

@@ -61,6 +61,7 @@ public class DataSource {
     public String getNextPageToken() { return nextPageToken; }
     public void setCurrentSearch(String search) {this.currentSearch = search; }
     public String getCurrentSearch() { return this.currentSearch; }
+    public String getAPI_KEY() { return API_KEY; }
 
     public void searchForVideos(String searchTerms){
         setCurrentSearch(searchTerms);
