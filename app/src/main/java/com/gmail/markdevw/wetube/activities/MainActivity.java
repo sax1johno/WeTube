@@ -1,11 +1,13 @@
 package com.gmail.markdevw.wetube.activities;
 
 import android.app.Fragment;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.Toast;
@@ -20,11 +22,14 @@ import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
 import com.google.android.youtube.player.YouTubePlayerFragment;
 
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+
 /**
  * Created by Mark on 3/24/2015.
  */
 
-public class MainActivity extends ActionBarActivity implements SearchBarFragment.Delegate, VideoListFragment.Delegate, YouTubePlayer.OnInitializedListener{
+public class MainActivity extends ActionBarActivity implements SearchBarFragment.Delegate, VideoListFragment.Delegate, YouTubePlayer.OnInitializedListener, YouTubePlayer.OnFullscreenListener {
 
     Handler handler;
     Toolbar toolbar;
@@ -34,6 +39,8 @@ public class MainActivity extends ActionBarActivity implements SearchBarFragment
     YouTubePlayerFragment playerFragment;
     YouTubePlayer youTubePlayer;
     String currentVideo;
+    boolean isFullscreen;
+    private static final int LANDSCAPE_VIDEO_PADDING_DP = 5;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -143,7 +150,12 @@ public class MainActivity extends ActionBarActivity implements SearchBarFragment
     @Override
     public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer youTubePlayer, boolean b) {
         this.youTubePlayer = youTubePlayer;
-        this.youTubePlayer.addFullscreenControlFlag(YouTubePlayer.FULLSCREEN_FLAG_ALWAYS_FULLSCREEN_IN_LANDSCAPE | YouTubePlayer.FULLSCREEN_FLAG_CONTROL_ORIENTATION);
+        //this.youTubePlayer.addFullscreenControlFlag(YouTubePlayer.FULLSCREEN_FLAG_ALWAYS_FULLSCREEN_IN_LANDSCAPE | YouTubePlayer.FULLSCREEN_FLAG_CONTROL_ORIENTATION);
+        this.youTubePlayer.addFullscreenControlFlag(YouTubePlayer.FULLSCREEN_FLAG_CUSTOM_LAYOUT);
+        this.youTubePlayer.setOnFullscreenListener(this);
+        if (!b && currentVideo != null) {
+            this.youTubePlayer.cueVideo(currentVideo);
+        }
     }
 
     @Override
@@ -153,7 +165,64 @@ public class MainActivity extends ActionBarActivity implements SearchBarFragment
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-
         super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        layout();
+    }
+
+    @Override
+    public void onFullscreen(boolean isFullscreen) {
+        this.isFullscreen = isFullscreen;
+        layout();
+    }
+
+    private void layout() {
+        boolean isPortrait =
+                getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
+
+        //listFragment.getView().setVisibility(isFullscreen ? View.GONE : View.VISIBLE);
+       // listFragment.setLabelVisibility(isPortrait);
+       // closeButton.setVisibility(isPortrait ? View.VISIBLE : View.GONE);
+
+        if (isFullscreen) {
+          //  videoBox.setTranslationY(0); // Reset any translation that was applied in portrait.
+            setLayoutSize(playerFragment.getView(), MATCH_PARENT, MATCH_PARENT);
+          //  setLayoutSizeAndGravity(videoBox, MATCH_PARENT, MATCH_PARENT, Gravity.TOP | Gravity.LEFT);
+        } else if (isPortrait) {
+          //  setLayoutSize(listFragment.getView(), MATCH_PARENT, MATCH_PARENT);
+            setLayoutSize(playerFragment.getView(), MATCH_PARENT, WRAP_CONTENT);
+           // setLayoutSizeAndGravity(videoBox, MATCH_PARENT, WRAP_CONTENT, Gravity.BOTTOM);
+        } else {
+          //  videoBox.setTranslationY(0); // Reset any translation that was applied in portrait.
+            int screenWidth = dpToPx(getResources().getConfiguration().screenWidthDp);
+          //  setLayoutSize(listFragment.getView(), screenWidth / 4, MATCH_PARENT);
+            int videoWidth = screenWidth - screenWidth / 4 - dpToPx(LANDSCAPE_VIDEO_PADDING_DP);
+            setLayoutSize(playerFragment.getView(), videoWidth, WRAP_CONTENT);
+            //setLayoutSizeAndGravity(videoBox, videoWidth, WRAP_CONTENT,
+                  //  Gravity.RIGHT | Gravity.CENTER_VERTICAL);
+        }
+    }
+
+    private int dpToPx(int dp) {
+        return (int) (dp * getResources().getDisplayMetrics().density + 0.5f);
+    }
+
+    private static void setLayoutSize(View view, int width, int height) {
+        ViewGroup.LayoutParams params = view.getLayoutParams();
+        params.width = width;
+        params.height = height;
+        view.setLayoutParams(params);
+    }
+
+    private static void setLayoutSizeAndGravity(View view, int width, int height, int gravity) {
+        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) view.getLayoutParams();
+        params.width = width;
+        params.height = height;
+        params.gravity = gravity;
+        view.setLayoutParams(params);
     }
 }
