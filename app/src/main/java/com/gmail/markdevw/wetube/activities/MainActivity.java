@@ -201,7 +201,7 @@ public class MainActivity extends ActionBarActivity implements SearchBarFragment
             int screenWidth = dpToPx(getResources().getConfiguration().screenWidthDp);
           //  setLayoutSize(listFragment.getView(), screenWidth / 4, MATCH_PARENT);
             int videoWidth = screenWidth - screenWidth / 4 - dpToPx(LANDSCAPE_VIDEO_PADDING_DP);
-            setLayoutSize(playerFragment.getView(), videoWidth, WRAP_CONTENT);
+            setLayoutSize(playerFragment.getView(), MATCH_PARENT, MATCH_PARENT);
             //setLayoutSizeAndGravity(videoBox, videoWidth, WRAP_CONTENT,
                   //  Gravity.RIGHT | Gravity.CENTER_VERTICAL);
         }
