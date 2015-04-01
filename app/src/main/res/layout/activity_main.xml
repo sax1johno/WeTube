@@ -9,12 +9,6 @@
         android:layout_height="wrap_content"
         android:minHeight="?attr/actionBarSize"
         android:background="?attr/colorPrimary"/>
-    
-    <FrameLayout
-        android:id="@+id/fl_activity_search"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-    </FrameLayout>
 
     <FrameLayout
         android:id="@+id/fl_activity_video_list"

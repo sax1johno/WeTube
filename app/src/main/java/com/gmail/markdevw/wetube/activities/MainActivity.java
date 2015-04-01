@@ -17,7 +17,6 @@ import com.gmail.markdevw.wetube.R;
 import com.gmail.markdevw.wetube.WeTubeApplication;
 import com.gmail.markdevw.wetube.adapters.VideoItemAdapter;
 import com.gmail.markdevw.wetube.api.model.VideoItem;
-import com.gmail.markdevw.wetube.fragments.SearchBarFragment;
 import com.gmail.markdevw.wetube.fragments.VideoListFragment;
 import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
@@ -31,7 +30,7 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
  * Created by Mark on 3/24/2015.
  */
 
-public class MainActivity extends ActionBarActivity implements SearchBarFragment.Delegate, VideoListFragment.Delegate, YouTubePlayer.OnInitializedListener, YouTubePlayer.OnFullscreenListener {
+public class MainActivity extends ActionBarActivity implements VideoListFragment.Delegate, YouTubePlayer.OnInitializedListener, YouTubePlayer.OnFullscreenListener {
 
     Handler handler;
     Toolbar toolbar;
@@ -49,7 +48,7 @@ public class MainActivity extends ActionBarActivity implements SearchBarFragment
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        search = (FrameLayout) findViewById(R.id.fl_activity_search);
+        //search = (FrameLayout) findViewById(R.id.fl_activity_search);
         list = (FrameLayout) findViewById(R.id.fl_activity_video_list);
         //player = (FrameLayout) findViewById(R.id.fl_activity_video_player);
 
@@ -70,10 +69,10 @@ public class MainActivity extends ActionBarActivity implements SearchBarFragment
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        getFragmentManager()
+       /* getFragmentManager()
                 .beginTransaction()
                 .add(R.id.fl_activity_search, new SearchBarFragment(), "Search")
-                .commit();
+                .commit();*/
 
         getFragmentManager()
                 .beginTransaction()
@@ -82,7 +81,7 @@ public class MainActivity extends ActionBarActivity implements SearchBarFragment
     }
 
     @Override
-    public void onSearchButtonClicked(SearchBarFragment searchBarFragment, EditText searchBox) {
+    public void onSearchButtonClicked(VideoListFragment videoListFragment, EditText searchBox) {
         final String search = WeTubeApplication.getSharedDataSource().getCurrentSearch();
 
         if(search.isEmpty()){
@@ -107,7 +106,7 @@ public class MainActivity extends ActionBarActivity implements SearchBarFragment
     }
 
     @Override
-    public void onPrevPageButtonClicked(SearchBarFragment searchBarFragment, EditText searchBox) {
+    public void onPrevPageButtonClicked(VideoListFragment videoListFragment, EditText searchBox) {
         final String search = WeTubeApplication.getSharedDataSource().getCurrentSearch();
 
         new Thread(){
@@ -128,7 +127,7 @@ public class MainActivity extends ActionBarActivity implements SearchBarFragment
     }
 
     @Override
-    public void onNextPageButtonClicked(SearchBarFragment searchBarFragment, EditText searchBox) {
+    public void onNextPageButtonClicked(VideoListFragment videoListFragment, EditText searchBox) {
         final String search = WeTubeApplication.getSharedDataSource().getCurrentSearch();
 
         new Thread(){
@@ -152,9 +151,26 @@ public class MainActivity extends ActionBarActivity implements SearchBarFragment
     public void onVideoItemClicked(VideoItemAdapter itemAdapter, VideoItem videoItem) {
         currentVideo = videoItem.getId();
 
-        search.setVisibility(View.GONE);
-        list.setVisibility(View.GONE);
+
+        getFragmentManager()
+                .beginTransaction()
+                .hide(getFragmentManager().findFragmentById(R.id.fl_activity_video_list))
+                .show(playerFragment)
+                .addToBackStack(null)
+                .commit();
+
+        //search.setVisibility(View.GONE);
+       // list.setVisibility(View.GONE);
         youTubePlayer.loadVideo(videoItem.getId());
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(getFragmentManager().getBackStackEntryCount() > 0){
+            getFragmentManager().popBackStack();
+        }else{
+            super.onBackPressed();
+        }
     }
 
     @Override
