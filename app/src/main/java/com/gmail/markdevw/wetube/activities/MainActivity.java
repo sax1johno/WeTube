@@ -1,6 +1,7 @@
 package com.gmail.markdevw.wetube.activities;
 
 import android.app.Fragment;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
@@ -21,6 +22,7 @@ import com.gmail.markdevw.wetube.fragments.VideoListFragment;
 import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
 import com.google.android.youtube.player.YouTubePlayerFragment;
+import com.parse.ui.ParseLoginBuilder;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -58,6 +60,16 @@ public class MainActivity extends ActionBarActivity implements SearchBarFragment
         toolbar = (Toolbar) findViewById(R.id.tb_activity_main);
         setSupportActionBar(toolbar);
 
+        ParseLoginBuilder builder = new ParseLoginBuilder(MainActivity.this);
+        startActivityForResult(builder.build(), 0);
+
+        handler = new Handler();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
         getFragmentManager()
                 .beginTransaction()
                 .add(R.id.fl_activity_search, new SearchBarFragment(), "Search")
@@ -67,8 +79,6 @@ public class MainActivity extends ActionBarActivity implements SearchBarFragment
                 .beginTransaction()
                 .add(R.id.fl_activity_video_list, new VideoListFragment(), "Video")
                 .commit();
-
-        handler = new Handler();
     }
 
     @Override

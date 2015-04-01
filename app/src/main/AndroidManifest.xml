@@ -5,6 +5,7 @@
     android:versionName="1.0">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:name=".WeTubeApplication"
@@ -21,6 +22,23 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+
+        <activity
+            android:name="com.parse.ui.ParseLoginActivity"
+            android:theme="@style/AppTheme"
+            android:label="@string/app_name"
+            android:launchMode="singleTop">
+            <!-- For more options, see https://www.parse.com/docs/android_guide#ui-login -->
+            <meta-data
+                android:name="com.parse.ui.ParseLoginActivity.PARSE_LOGIN_ENABLED"
+                android:value="true"/>
+            <meta-data
+                android:name="com.parse.ui.ParseLoginActivity.PARSE_LOGIN_EMAIL_AS_USERNAME"
+                android:value="false"/>
+            <meta-data
+                android:name="com.parse.ui.ParseLoginActivity.PARSE_SIGNUP_MIN_PASSWORD_LENGTH"
+                android:value="3"/>
         </activity>
 
     </application>
