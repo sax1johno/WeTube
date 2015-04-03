@@ -186,7 +186,6 @@ public class MainActivity extends ActionBarActivity implements VideoListFragment
 
     @Override
     public void onInitializationFailure(YouTubePlayer.Provider provider, YouTubeInitializationResult youTubeInitializationResult) {
-
     }
 
     @Override

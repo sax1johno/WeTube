@@ -34,5 +34,6 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:22.0.0'
     compile 'com.android.support:appcompat-v7:22.0.0'
     compile project(':ParseLoginUI')
+    compile files('libs/sinch-android-rtc-3.5.0.jar')
 }
 
