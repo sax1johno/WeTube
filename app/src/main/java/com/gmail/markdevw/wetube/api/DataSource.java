@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.gmail.markdevw.wetube.R;
+import com.gmail.markdevw.wetube.api.model.UserItem;
 import com.gmail.markdevw.wetube.api.model.VideoItem;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestInitializer;
@@ -23,6 +24,7 @@ import java.util.List;
 public class DataSource {
     private String API_KEY = "AIzaSyDqalWrQoW2KoHoYLoyKl-FhncIQd2C3Rk";
     private List<VideoItem> videos;
+    private List<UserItem> users;
     private YouTube youtube;
     private YouTube.Search.List query;
     private int currentPage = 0;
@@ -33,6 +35,7 @@ public class DataSource {
 
     public DataSource(Context context){
         videos = new ArrayList<VideoItem>();
+        users = new ArrayList<UserItem>();
         youtube = new YouTube.Builder(new NetHttpTransport(),
                 new JacksonFactory(), new HttpRequestInitializer() {
             @Override
@@ -53,6 +56,7 @@ public class DataSource {
     public List<VideoItem> getVideos(){
         return videos;
     }
+    public List<UserItem> getUsers() { return users; }
     public int getCurrentPage(){ return currentPage; }
     public void setCurrentPage(int currentPage) { this.currentPage = currentPage; }
     public void setPrevPageToken(String prevPageToken){ this.prevPageToken = prevPageToken; }
@@ -123,4 +127,25 @@ public class DataSource {
             Log.d("YC", "Could not search: "+e);
         }
     }
+
+    /*public void getLoggedInUsers(){
+        String currentUserId = ParseUser.getCurrentUser().getObjectId();
+
+        ParseQuery<ParseUser> query = ParseUser.getQuery();
+        //don't include yourself
+        query.whereNotEqualTo("objectId", currentUserId);
+        query.findInBackground(new FindCallback<ParseUser>() {
+            public void done(List<ParseUser> userList, com.parse.ParseException e) {
+                if (e == null) {
+                    for (int i=0; i<userList.size(); i++) {
+                        users.add(new UserItem(userList.get(i).getUsername()));
+                    }
+                } else {
+                    Toast.makeText(WeTubeApplication.getSharedInstance(),
+                            "Error loading user list",
+                            Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+    }*/
 }

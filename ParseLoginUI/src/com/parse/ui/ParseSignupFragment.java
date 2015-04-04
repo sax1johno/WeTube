@@ -182,6 +182,7 @@ public class ParseSignupFragment extends ParseLoginFragmentBase implements OnCli
       user.setPassword(password);
       user.setEmail(email);
       user.setLoggedStatus(true);
+      user.setSessionStatus(false);
 
                 // Set additional custom fields only if the user filled it out
                 if (name.length() != 0) {
