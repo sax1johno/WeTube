@@ -123,5 +123,4 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
     public void onItemClicked(UserItemAdapter itemAdapter, UserItem userItem) {
 
     }
-
 }

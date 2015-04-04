@@ -1,10 +1,14 @@
 package com.gmail.markdevw.wetube;
 
 import android.app.Application;
+import android.util.Log;
 
 import com.gmail.markdevw.wetube.api.DataSource;
 import com.parse.Parse;
+import com.parse.ParseException;
 import com.parse.ParseObject;
+import com.parse.ParsePush;
+import com.parse.SaveCallback;
 import com.parse.models.WeTubeUser;
 
 /**
@@ -32,6 +36,17 @@ public class WeTubeApplication extends Application {
         ParseObject.registerSubclass(WeTubeUser.class);
         //Parse.enableLocalDatastore(this);
         Parse.initialize(this, getResources().getString(R.string.parse_app_id), getResources().getString(R.string.parse_client_key));
+
+        ParsePush.subscribeInBackground("", new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e == null) {
+                    Log.d("com.parse.push", "successfully subscribed to the broadcast channel.");
+                } else {
+                    Log.e("com.parse.push", "failed to subscribe for push", e);
+                }
+            }
+        });
     }
 
     public DataSource getDataSource() {
