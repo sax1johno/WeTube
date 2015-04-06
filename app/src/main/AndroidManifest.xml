@@ -84,6 +84,14 @@
             </intent-filter>
         </receiver>
 
+        <receiver android:name=".receivers.PushReceiver">
+            <intent-filter>
+                <action android:name="com.gmail.markdevw.wetube.RECEIVE_PUSH"
+                android:exported="false"
+                android:enabled="true"/>
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>

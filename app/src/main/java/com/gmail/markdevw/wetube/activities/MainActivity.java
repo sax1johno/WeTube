@@ -48,6 +48,12 @@ public class MainActivity extends ActionBarActivity implements VideoListFragment
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Bundle mBundle = getIntent().getExtras();
+        if (mBundle != null) {
+            String mData = mBundle.getString("com.parse.Data");
+            System.out.println("DATA : xxxxx : " + mData);
+        }
+
         //search = (FrameLayout) findViewById(R.id.fl_activity_search);
         list = (FrameLayout) findViewById(R.id.fl_activity_video_list);
         //player = (FrameLayout) findViewById(R.id.fl_activity_video_player);

@@ -12,6 +12,8 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.gmail.markdevw.wetube.R;
@@ -20,22 +22,28 @@ import com.gmail.markdevw.wetube.adapters.UserItemAdapter;
 import com.gmail.markdevw.wetube.api.model.UserItem;
 import com.gmail.markdevw.wetube.services.MessageService;
 import com.parse.FindCallback;
+import com.parse.FunctionCallback;
+import com.parse.ParseCloud;
+import com.parse.ParseInstallation;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.models.WeTubeUser;
 import com.parse.ui.ParseLoginBuilder;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Mark on 4/2/2015.
  */
-public class UsersActivity extends ActionBarActivity implements UserItemAdapter.Delegate {
+public class UsersActivity extends ActionBarActivity implements UserItemAdapter.Delegate, View.OnClickListener {
 
     private Intent serviceIntent;
     private ProgressDialog progressDialog;
     private BroadcastReceiver receiver = null;
     private RecyclerView recyclerView;
+    private Button logout;
     private UserItemAdapter userItemAdapter;
     private Handler handler;
 
@@ -48,6 +56,10 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
 
         userItemAdapter = new UserItemAdapter();
         userItemAdapter.setDelegate(this);
+
+        logout = (Button) findViewById(R.id.activity_main_logout);
+        logout.setOnClickListener(this);
+
 
         recyclerView = (RecyclerView) findViewById(R.id.rv_activity_main);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -67,6 +79,10 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
         startService(serviceIntent);
         showSpinner();
         getLoggedInUsers();
+
+        ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+        installation.put("user", WeTubeUser.getCurrentUser());
+        installation.saveInBackground();
 
     }
 
@@ -107,7 +123,7 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
             public void done(List<ParseUser> userList, com.parse.ParseException e) {
                 if (e == null) {
                     for (int i=0; i<userList.size(); i++) {
-                        WeTubeApplication.getSharedDataSource().getUsers().add(new UserItem(userList.get(i).getUsername()));
+                        WeTubeApplication.getSharedDataSource().getUsers().add(new UserItem(userList.get(i).getUsername(), userList.get(i).getObjectId()));
                     }
                     userItemAdapter.notifyDataSetChanged();
                 } else {
@@ -120,7 +136,30 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
     }
 
     @Override
-    public void onItemClicked(UserItemAdapter itemAdapter, UserItem userItem) {
+    public void onItemClicked(UserItemAdapter itemAdapter, final UserItem userItem) {
+
+        HashMap<String, Object> params = new HashMap<String, Object>();
+        params.put("recipientId", userItem.getId());
+        ParseCloud.callFunctionInBackground("startSession", params, new FunctionCallback<Map<String, Object>>() {
+            @Override
+            public void done(Map<String, Object> mapObject, com.parse.ParseException e) {
+                if (e == null) {
+                    Intent intent = new Intent(WeTubeApplication.getSharedInstance(), MainActivity.class);
+                    startActivity(intent);
+                }
+                else{
+                    Toast.makeText(WeTubeApplication.getSharedInstance(),
+                            "Error: " + e + ". Failed to start session with " + userItem.getName(),
+                            Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+
+
+    }
+
+    @Override
+    public void onClick(View view) {
 
     }
 }

@@ -1,0 +1,11 @@
+{
+    "applications": {
+        "WeTube": {
+            "applicationId": "B6xu3nHq45FTT8xMGU3srLc0iu5pHQdoiRgfmAbg", 
+            "masterKey": "NroI9JmlzeaBabrXTx5MjTTbLSCxyFQpsGbZZt2P"
+        }, 
+        "_default": {
+            "link": "WeTube"
+        }
+    }
+}
