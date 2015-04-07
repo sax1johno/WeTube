@@ -3,7 +3,7 @@ Parse.Cloud.define("startSession", function(request, response) {
   var recipientId = request.params.recipientId;
   
   var pushQuery = new Parse.Query(Parse.Installation);
- 
+  pushQuery.equalTo("user", recipientId);
 
 
   Parse.Push.send({
