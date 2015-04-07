@@ -14,6 +14,7 @@ public class PushReceiver extends ParsePushBroadcastReceiver {
     @Override
     public void onPushReceive(Context context, Intent intent) {
         Intent i = new Intent(WeTubeApplication.getSharedInstance(), MainActivity.class);
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(i);
     }
 }

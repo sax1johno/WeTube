@@ -32,7 +32,6 @@ import com.parse.ui.ParseLoginBuilder;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by Mark on 4/2/2015.
@@ -140,12 +139,12 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
 
         HashMap<String, Object> params = new HashMap<String, Object>();
         params.put("recipientId", userItem.getId());
-        ParseCloud.callFunctionInBackground("startSession", params, new FunctionCallback<Map<String, Object>>() {
+        ParseCloud.callFunctionInBackground("startSession", params, new FunctionCallback<String>() {
             @Override
-            public void done(Map<String, Object> mapObject, com.parse.ParseException e) {
+            public void done(String mapObject, com.parse.ParseException e) {
                 if (e == null) {
-                    Intent intent = new Intent(WeTubeApplication.getSharedInstance(), MainActivity.class);
-                    startActivity(intent);
+                   // Intent intent = new Intent(WeTubeApplication.getSharedInstance(), MainActivity.class);
+                  //  startActivity(intent);
                 }
                 else{
                     Toast.makeText(WeTubeApplication.getSharedInstance(),
