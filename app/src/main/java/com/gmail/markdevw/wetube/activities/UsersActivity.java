@@ -80,7 +80,7 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
         getLoggedInUsers();
 
         ParseInstallation installation = ParseInstallation.getCurrentInstallation();
-        installation.put("user", WeTubeUser.getCurrentUser());
+        installation.put("user", WeTubeUser.getCurrentUser().getObjectId());
         installation.saveInBackground();
 
     }
@@ -143,8 +143,8 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
             @Override
             public void done(String mapObject, com.parse.ParseException e) {
                 if (e == null) {
-                   // Intent intent = new Intent(WeTubeApplication.getSharedInstance(), MainActivity.class);
-                  //  startActivity(intent);
+                    Intent intent = new Intent(WeTubeApplication.getSharedInstance(), MainActivity.class);
+                    startActivity(intent);
                 }
                 else{
                     Toast.makeText(WeTubeApplication.getSharedInstance(),
@@ -153,8 +153,6 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
                 }
             }
         });
-
-
     }
 
     @Override
