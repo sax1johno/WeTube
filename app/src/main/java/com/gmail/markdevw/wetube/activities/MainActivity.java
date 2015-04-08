@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -85,15 +87,21 @@ public class MainActivity extends ActionBarActivity implements VideoListFragment
                 .findFragmentById(R.id.youtubeplayerfragment);
         playerFragment.initialize(WeTubeApplication.getSharedDataSource().getAPI_KEY(), this);
 
+        getFragmentManager()
+                .beginTransaction()
+                .hide(playerFragment)
+                .commit();
+
+
         toolbar = (Toolbar) findViewById(R.id.tb_activity_main);
         setSupportActionBar(toolbar);
 
         messageItemAdapter = new MessageItemAdapter();
 
-        //recyclerView = (RecyclerView) findViewById(R.id.rv_activity_main);
-        //recyclerView.setLayoutManager(new LinearLayoutManager(this));
-       // recyclerView.setItemAnimator(new DefaultItemAnimator());
-        //recyclerView.setAdapter(messageItemAdapter);
+        recyclerView = (RecyclerView) findViewById(R.id.rv_activity_main);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setAdapter(messageItemAdapter);
 
         getFragmentManager()
                 .beginTransaction()
@@ -177,10 +185,6 @@ public class MainActivity extends ActionBarActivity implements VideoListFragment
     public void onVideoItemClicked(VideoItemAdapter itemAdapter, VideoItem videoItem) {
         currentVideo = videoItem.getId();
 
-        playerFragment = (YouTubePlayerFragment)getFragmentManager()
-                .findFragmentById(R.id.youtubeplayerfragment);
-        playerFragment.initialize(WeTubeApplication.getSharedDataSource().getAPI_KEY(), this);
-
         getFragmentManager()
                 .beginTransaction()
                 .hide(getFragmentManager().findFragmentById(R.id.fl_activity_video_list))
@@ -226,6 +230,7 @@ public class MainActivity extends ActionBarActivity implements VideoListFragment
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         layout();
+
     }
 
     @Override
@@ -325,4 +330,6 @@ public class MainActivity extends ActionBarActivity implements VideoListFragment
         @Override
         public void onShouldSendPushData(MessageClient client, Message message, List<PushPair> pushPairs) {}
     }
+
+
 }
