@@ -9,15 +9,18 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.gmail.markdevw.wetube.R;
 import com.gmail.markdevw.wetube.WeTubeApplication;
+import com.gmail.markdevw.wetube.adapters.MessageItemAdapter;
 import com.gmail.markdevw.wetube.adapters.VideoItemAdapter;
 import com.gmail.markdevw.wetube.api.model.VideoItem;
 import com.gmail.markdevw.wetube.fragments.VideoListFragment;
@@ -48,6 +51,7 @@ public class MainActivity extends ActionBarActivity implements VideoListFragment
     FrameLayout search;
     FrameLayout list;
     FrameLayout player;
+    LinearLayout chatbar;
     YouTubePlayerFragment playerFragment;
     YouTubePlayer youTubePlayer;
     String currentVideo;
@@ -55,6 +59,8 @@ public class MainActivity extends ActionBarActivity implements VideoListFragment
     private static final int LANDSCAPE_VIDEO_PADDING_DP = 5;
     private MessageService.MessageServiceInterface messageService;
     private ServiceConnection serviceConnection = new MyServiceConnection();
+    private RecyclerView recyclerView;
+    private MessageItemAdapter messageItemAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -73,12 +79,21 @@ public class MainActivity extends ActionBarActivity implements VideoListFragment
         list = (FrameLayout) findViewById(R.id.fl_activity_video_list);
         //player = (FrameLayout) findViewById(R.id.fl_activity_video_player);
 
+        chatbar = (LinearLayout) findViewById(R.id.ll_activity_main_chat_bar);
+
         playerFragment = (YouTubePlayerFragment)getFragmentManager()
                 .findFragmentById(R.id.youtubeplayerfragment);
         playerFragment.initialize(WeTubeApplication.getSharedDataSource().getAPI_KEY(), this);
 
         toolbar = (Toolbar) findViewById(R.id.tb_activity_main);
         setSupportActionBar(toolbar);
+
+        messageItemAdapter = new MessageItemAdapter();
+
+        //recyclerView = (RecyclerView) findViewById(R.id.rv_activity_main);
+        //recyclerView.setLayoutManager(new LinearLayoutManager(this));
+       // recyclerView.setItemAnimator(new DefaultItemAnimator());
+        //recyclerView.setAdapter(messageItemAdapter);
 
         getFragmentManager()
                 .beginTransaction()
@@ -162,6 +177,9 @@ public class MainActivity extends ActionBarActivity implements VideoListFragment
     public void onVideoItemClicked(VideoItemAdapter itemAdapter, VideoItem videoItem) {
         currentVideo = videoItem.getId();
 
+        playerFragment = (YouTubePlayerFragment)getFragmentManager()
+                .findFragmentById(R.id.youtubeplayerfragment);
+        playerFragment.initialize(WeTubeApplication.getSharedDataSource().getAPI_KEY(), this);
 
         getFragmentManager()
                 .beginTransaction()
@@ -227,10 +245,12 @@ public class MainActivity extends ActionBarActivity implements VideoListFragment
         if (isFullscreen) {
           //  videoBox.setTranslationY(0); // Reset any translation that was applied in portrait.
             setLayoutSize(playerFragment.getView(), MATCH_PARENT, MATCH_PARENT);
+            chatbar.setVisibility(View.GONE);
           //  setLayoutSizeAndGravity(videoBox, MATCH_PARENT, MATCH_PARENT, Gravity.TOP | Gravity.LEFT);
         } else if (isPortrait) {
           //  setLayoutSize(listFragment.getView(), MATCH_PARENT, MATCH_PARENT);
             setLayoutSize(playerFragment.getView(), MATCH_PARENT, WRAP_CONTENT);
+            chatbar.setVisibility(View.VISIBLE);
            // setLayoutSizeAndGravity(videoBox, MATCH_PARENT, WRAP_CONTENT, Gravity.BOTTOM);
         } else {
           //  videoBox.setTranslationY(0); // Reset any translation that was applied in portrait.
@@ -238,6 +258,7 @@ public class MainActivity extends ActionBarActivity implements VideoListFragment
           //  setLayoutSize(listFragment.getView(), screenWidth / 4, MATCH_PARENT);
             int videoWidth = screenWidth - screenWidth / 4 - dpToPx(LANDSCAPE_VIDEO_PADDING_DP);
             setLayoutSize(playerFragment.getView(), MATCH_PARENT, MATCH_PARENT);
+            chatbar.setVisibility(View.GONE);
             //setLayoutSizeAndGravity(videoBox, videoWidth, WRAP_CONTENT,
                   //  Gravity.RIGHT | Gravity.CENTER_VERTICAL);
         }

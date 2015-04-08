@@ -49,7 +49,7 @@ public class MessageItemAdapter extends RecyclerView.Adapter<MessageItemAdapter.
 
     @Override
     public int getItemCount() {
-        return WeTubeApplication.getSharedDataSource().getUsers().size();
+        return WeTubeApplication.getSharedDataSource().getMessages().size();
     }
 
     class ItemAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {

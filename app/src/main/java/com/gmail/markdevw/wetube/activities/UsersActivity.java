@@ -60,7 +60,7 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
         logout.setOnClickListener(this);
 
 
-        recyclerView = (RecyclerView) findViewById(R.id.rv_activity_main);
+        recyclerView = (RecyclerView) findViewById(R.id.rv_activity_users);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(userItemAdapter);
