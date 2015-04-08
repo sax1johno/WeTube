@@ -16,6 +16,8 @@
         android:layout_height="wrap_content">
     </FrameLayout>
 
+
+
     <fragment
         android:name="com.google.android.youtube.player.YouTubePlayerFragment"
         android:id="@+id/youtubeplayerfragment"

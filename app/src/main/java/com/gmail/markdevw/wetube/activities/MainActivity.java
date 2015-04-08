@@ -1,9 +1,13 @@
 package com.gmail.markdevw.wetube.activities;
 
 import android.app.Fragment;
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -17,9 +21,18 @@ import com.gmail.markdevw.wetube.WeTubeApplication;
 import com.gmail.markdevw.wetube.adapters.VideoItemAdapter;
 import com.gmail.markdevw.wetube.api.model.VideoItem;
 import com.gmail.markdevw.wetube.fragments.VideoListFragment;
+import com.gmail.markdevw.wetube.services.MessageService;
 import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
 import com.google.android.youtube.player.YouTubePlayerFragment;
+import com.sinch.android.rtc.PushPair;
+import com.sinch.android.rtc.messaging.Message;
+import com.sinch.android.rtc.messaging.MessageClient;
+import com.sinch.android.rtc.messaging.MessageClientListener;
+import com.sinch.android.rtc.messaging.MessageDeliveryInfo;
+import com.sinch.android.rtc.messaging.MessageFailureInfo;
+
+import java.util.List;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -40,11 +53,15 @@ public class MainActivity extends ActionBarActivity implements VideoListFragment
     String currentVideo;
     boolean isFullscreen;
     private static final int LANDSCAPE_VIDEO_PADDING_DP = 5;
+    private MessageService.MessageServiceInterface messageService;
+    private ServiceConnection serviceConnection = new MyServiceConnection();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        bindService(new Intent(this, MessageService.class), serviceConnection, BIND_AUTO_CREATE);
 
         Bundle mBundle = getIntent().getExtras();
         if (mBundle != null) {
@@ -243,5 +260,48 @@ public class MainActivity extends ActionBarActivity implements VideoListFragment
         params.height = height;
         params.gravity = gravity;
         view.setLayoutParams(params);
+    }
+
+    @Override
+    public void onDestroy() {
+        unbindService(serviceConnection);
+        super.onDestroy();
+    }
+
+    private class MyServiceConnection implements ServiceConnection {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            messageService = (MessageService.MessageServiceInterface) iBinder;
+        }
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            messageService = null;
+        }
+    }
+
+    private class MyMessageClientListener implements MessageClientListener {
+        //Notify the user if their message failed to send
+        @Override
+        public void onMessageFailed(MessageClient client, Message message,
+                                    MessageFailureInfo failureInfo) {
+            Toast.makeText(MainActivity.this, "Message failed to send.", Toast.LENGTH_LONG).show();
+        }
+        @Override
+        public void onIncomingMessage(MessageClient client, Message message) {
+            //Display an incoming message
+        }
+        @Override
+        public void onMessageSent(MessageClient client, Message message, String recipientId) {
+            //Display the message that was just sent
+            //Later, I'll show you how to store the
+            //message in Parse, so you can retrieve and
+            //display them every time the conversation is opened
+        }
+        //Do you want to notify your user when the message is delivered?
+        @Override
+        public void onMessageDelivered(MessageClient client, MessageDeliveryInfo deliveryInfo) {}
+        //Don't worry about this right now
+        @Override
+        public void onShouldSendPushData(MessageClient client, Message message, List<PushPair> pushPairs) {}
     }
 }

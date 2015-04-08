@@ -9,7 +9,7 @@ Parse.Cloud.define("startSession", function(request, response) {
   Parse.Push.send({
     where: pushQuery,
     data: {
-      alert: "Push"
+      alert: request.params.userId
     }
   }).then(function() {
       response.success("Push was sent successfully.")

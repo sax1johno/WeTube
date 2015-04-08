@@ -139,10 +139,12 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
 
         HashMap<String, Object> params = new HashMap<String, Object>();
         params.put("recipientId", userItem.getId());
+        params.put("userId", WeTubeUser.getCurrentUser().getObjectId());
         ParseCloud.callFunctionInBackground("startSession", params, new FunctionCallback<String>() {
             @Override
             public void done(String mapObject, com.parse.ParseException e) {
                 if (e == null) {
+                    WeTubeApplication.getSharedDataSource().setCurrentRecipient(userItem.getId());
                     Intent intent = new Intent(WeTubeApplication.getSharedInstance(), MainActivity.class);
                     startActivity(intent);
                 }

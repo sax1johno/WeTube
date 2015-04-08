@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.gmail.markdevw.wetube.R;
+import com.gmail.markdevw.wetube.api.model.MessageItem;
 import com.gmail.markdevw.wetube.api.model.UserItem;
 import com.gmail.markdevw.wetube.api.model.VideoItem;
 import com.google.api.client.http.HttpRequest;
@@ -31,7 +32,9 @@ public class DataSource {
     private String prevPageToken;
     private String nextPageToken;
     private String currentSearch;
+    private String currentRecipient;
     private final long NUMBER_OF_VIDEOS_RETURNED = 20;
+    private List<MessageItem> messages = new ArrayList<>();
 
     public DataSource(Context context){
         videos = new ArrayList<VideoItem>();
@@ -53,6 +56,9 @@ public class DataSource {
         }
     }
 
+    public List<MessageItem> getMessages() { return messages;}
+    public void setCurrentRecipient(String recipient){ this.currentRecipient = recipient;}
+    public String getCurrentRecipient() { return this.currentRecipient; }
     public List<VideoItem> getVideos(){
         return videos;
     }
