@@ -15,6 +15,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -24,6 +25,7 @@ import com.gmail.markdevw.wetube.R;
 import com.gmail.markdevw.wetube.WeTubeApplication;
 import com.gmail.markdevw.wetube.adapters.MessageItemAdapter;
 import com.gmail.markdevw.wetube.adapters.VideoItemAdapter;
+import com.gmail.markdevw.wetube.api.model.MessageItem;
 import com.gmail.markdevw.wetube.api.model.VideoItem;
 import com.gmail.markdevw.wetube.fragments.VideoListFragment;
 import com.gmail.markdevw.wetube.services.MessageService;
@@ -46,13 +48,11 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
  * Created by Mark on 3/24/2015.
  */
 
-public class MainActivity extends ActionBarActivity implements VideoListFragment.Delegate, YouTubePlayer.OnInitializedListener, YouTubePlayer.OnFullscreenListener {
+public class MainActivity extends ActionBarActivity implements VideoListFragment.Delegate, YouTubePlayer.OnInitializedListener, YouTubePlayer.OnFullscreenListener, View.OnClickListener {
 
     Handler handler;
     Toolbar toolbar;
-    FrameLayout search;
     FrameLayout list;
-    FrameLayout player;
     LinearLayout chatbar;
     YouTubePlayerFragment playerFragment;
     YouTubePlayer youTubePlayer;
@@ -61,8 +61,11 @@ public class MainActivity extends ActionBarActivity implements VideoListFragment
     private static final int LANDSCAPE_VIDEO_PADDING_DP = 5;
     private MessageService.MessageServiceInterface messageService;
     private ServiceConnection serviceConnection = new MyServiceConnection();
+    private MessageClientListener messageClientListener = new MyMessageClientListener();
     private RecyclerView recyclerView;
     private MessageItemAdapter messageItemAdapter;
+    private EditText messageField;
+    private Button sendMessage;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -71,15 +74,7 @@ public class MainActivity extends ActionBarActivity implements VideoListFragment
 
         bindService(new Intent(this, MessageService.class), serviceConnection, BIND_AUTO_CREATE);
 
-        Bundle mBundle = getIntent().getExtras();
-        if (mBundle != null) {
-            String mData = mBundle.getString("com.parse.Data");
-            System.out.println("DATA : xxxxx : " + mData);
-        }
-
-        //search = (FrameLayout) findViewById(R.id.fl_activity_search);
         list = (FrameLayout) findViewById(R.id.fl_activity_video_list);
-        //player = (FrameLayout) findViewById(R.id.fl_activity_video_player);
 
         chatbar = (LinearLayout) findViewById(R.id.ll_activity_main_chat_bar);
 
@@ -91,7 +86,6 @@ public class MainActivity extends ActionBarActivity implements VideoListFragment
                 .beginTransaction()
                 .hide(playerFragment)
                 .commit();
-
 
         toolbar = (Toolbar) findViewById(R.id.tb_activity_main);
         setSupportActionBar(toolbar);
@@ -108,8 +102,9 @@ public class MainActivity extends ActionBarActivity implements VideoListFragment
                 .add(R.id.fl_activity_video_list, new VideoListFragment(), "Video")
                 .commit();
 
-        //ParseLoginBuilder builder = new ParseLoginBuilder(MainActivity.this);
-       // startActivityForResult(builder.build(), 0);
+        messageField = (EditText) findViewById(R.id.activity_main_message_field);
+        sendMessage = (Button) findViewById(R.id.activity_main_send_button);
+        sendMessage.setOnClickListener(this);
 
         handler = new Handler();
     }
@@ -290,14 +285,35 @@ public class MainActivity extends ActionBarActivity implements VideoListFragment
 
     @Override
     public void onDestroy() {
+        messageService.removeMessageClientListener(messageClientListener);
         unbindService(serviceConnection);
         super.onDestroy();
+    }
+
+    @Override
+    public void onClick(View view) {
+        if(view.getId() == R.id.activity_main_send_button){
+            sendMessage();
+        }
+    }
+
+    private void sendMessage() {
+        if(messageField.getText().toString().isEmpty()){
+            Toast.makeText(getApplicationContext(), "Type a message first before sending", Toast.LENGTH_LONG).show();
+        }else{
+            messageService.sendMessage(WeTubeApplication.getSharedDataSource().getCurrentRecipient(), messageField.getText().toString());
+            WeTubeApplication.getSharedDataSource().getMessages().add(new MessageItem(messageField.getText().toString(), MessageItem.OUTGOING_MSG));
+            messageItemAdapter.notifyDataSetChanged();
+            recyclerView.scrollToPosition(WeTubeApplication.getSharedDataSource().getMessages().size() - 1);
+            messageField.setText("");
+        }
     }
 
     private class MyServiceConnection implements ServiceConnection {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             messageService = (MessageService.MessageServiceInterface) iBinder;
+            messageService.addMessageClientListener(messageClientListener);
         }
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
@@ -306,7 +322,6 @@ public class MainActivity extends ActionBarActivity implements VideoListFragment
     }
 
     private class MyMessageClientListener implements MessageClientListener {
-        //Notify the user if their message failed to send
         @Override
         public void onMessageFailed(MessageClient client, Message message,
                                     MessageFailureInfo failureInfo) {
@@ -314,14 +329,15 @@ public class MainActivity extends ActionBarActivity implements VideoListFragment
         }
         @Override
         public void onIncomingMessage(MessageClient client, Message message) {
-            //Display an incoming message
+            if (message.getSenderId().equals(WeTubeApplication.getSharedDataSource().getCurrentRecipient())) {
+                WeTubeApplication.getSharedDataSource().getMessages().add(new MessageItem(message.getTextBody(), MessageItem.INCOMING_MSG));
+                messageItemAdapter.notifyDataSetChanged();
+                recyclerView.scrollToPosition(WeTubeApplication.getSharedDataSource().getMessages().size() - 1);
+            }
         }
         @Override
         public void onMessageSent(MessageClient client, Message message, String recipientId) {
-            //Display the message that was just sent
-            //Later, I'll show you how to store the
-            //message in Parse, so you can retrieve and
-            //display them every time the conversation is opened
+
         }
         //Do you want to notify your user when the message is delivered?
         @Override
