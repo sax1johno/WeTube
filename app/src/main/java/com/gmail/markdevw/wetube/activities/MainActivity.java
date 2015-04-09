@@ -188,6 +188,8 @@ public class MainActivity extends ActionBarActivity implements VideoListFragment
     public void onVideoItemClicked(VideoItemAdapter itemAdapter, VideoItem videoItem) {
         currentVideo = videoItem.getId();
 
+        messageType = VIDEO_START;
+
         getFragmentManager()
                 .beginTransaction()
                 .hide(getFragmentManager().findFragmentById(R.id.fl_activity_video_list))
@@ -196,7 +198,7 @@ public class MainActivity extends ActionBarActivity implements VideoListFragment
                 .commit();
 
         messageService.sendMessage(WeTubeApplication.getSharedDataSource().getCurrentRecipient(), "/video$" + videoItem.getId());
-        youTubePlayer.loadVideo(videoItem.getId());
+
     }
 
     @Override
@@ -376,7 +378,7 @@ public class MainActivity extends ActionBarActivity implements VideoListFragment
         @Override
         public void onMessageDelivered(MessageClient client, MessageDeliveryInfo deliveryInfo) {
             if(messageType == VIDEO_START){
-
+                youTubePlayer.loadVideo(currentVideo);
             }
         }
         //Don't worry about this right now
