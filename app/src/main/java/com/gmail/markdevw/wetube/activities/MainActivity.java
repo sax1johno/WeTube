@@ -48,7 +48,9 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
  * Created by Mark on 3/24/2015.
  */
 
-public class MainActivity extends ActionBarActivity implements VideoListFragment.Delegate, YouTubePlayer.OnInitializedListener, YouTubePlayer.OnFullscreenListener, View.OnClickListener {
+public class MainActivity extends ActionBarActivity implements VideoListFragment.Delegate, YouTubePlayer.OnInitializedListener,
+        YouTubePlayer.OnFullscreenListener, View.OnClickListener,
+        YouTubePlayer.PlaybackEventListener{
 
     Handler handler;
     Toolbar toolbar;
@@ -66,6 +68,12 @@ public class MainActivity extends ActionBarActivity implements VideoListFragment
     private MessageItemAdapter messageItemAdapter;
     private EditText messageField;
     private Button sendMessage;
+
+    private final int MESSAGE = 0;
+    private final int VIDEO_START = 1;
+    private final int VIDEO_PAUSE = 2;
+
+    private int messageType;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -187,8 +195,7 @@ public class MainActivity extends ActionBarActivity implements VideoListFragment
                 .addToBackStack(null)
                 .commit();
 
-        //search.setVisibility(View.GONE);
-       // list.setVisibility(View.GONE);
+        messageService.sendMessage(WeTubeApplication.getSharedDataSource().getCurrentRecipient(), "/video$" + videoItem.getId());
         youTubePlayer.loadVideo(videoItem.getId());
     }
 
@@ -238,29 +245,16 @@ public class MainActivity extends ActionBarActivity implements VideoListFragment
         boolean isPortrait =
                 getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
 
-        //listFragment.getView().setVisibility(isFullscreen ? View.GONE : View.VISIBLE);
-       // listFragment.setLabelVisibility(isPortrait);
-       // closeButton.setVisibility(isPortrait ? View.VISIBLE : View.GONE);
-
         if (isFullscreen) {
-          //  videoBox.setTranslationY(0); // Reset any translation that was applied in portrait.
             setLayoutSize(playerFragment.getView(), MATCH_PARENT, MATCH_PARENT);
             chatbar.setVisibility(View.GONE);
-          //  setLayoutSizeAndGravity(videoBox, MATCH_PARENT, MATCH_PARENT, Gravity.TOP | Gravity.LEFT);
         } else if (isPortrait) {
-          //  setLayoutSize(listFragment.getView(), MATCH_PARENT, MATCH_PARENT);
             setLayoutSize(playerFragment.getView(), MATCH_PARENT, WRAP_CONTENT);
             chatbar.setVisibility(View.VISIBLE);
-           // setLayoutSizeAndGravity(videoBox, MATCH_PARENT, WRAP_CONTENT, Gravity.BOTTOM);
         } else {
-          //  videoBox.setTranslationY(0); // Reset any translation that was applied in portrait.
             int screenWidth = dpToPx(getResources().getConfiguration().screenWidthDp);
-          //  setLayoutSize(listFragment.getView(), screenWidth / 4, MATCH_PARENT);
-            int videoWidth = screenWidth - screenWidth / 4 - dpToPx(LANDSCAPE_VIDEO_PADDING_DP);
             setLayoutSize(playerFragment.getView(), MATCH_PARENT, MATCH_PARENT);
             chatbar.setVisibility(View.GONE);
-            //setLayoutSizeAndGravity(videoBox, videoWidth, WRAP_CONTENT,
-                  //  Gravity.RIGHT | Gravity.CENTER_VERTICAL);
         }
     }
 
@@ -302,11 +296,37 @@ public class MainActivity extends ActionBarActivity implements VideoListFragment
             Toast.makeText(getApplicationContext(), "Type a message first before sending", Toast.LENGTH_LONG).show();
         }else{
             messageService.sendMessage(WeTubeApplication.getSharedDataSource().getCurrentRecipient(), messageField.getText().toString());
+            messageType = MESSAGE;
             WeTubeApplication.getSharedDataSource().getMessages().add(new MessageItem(messageField.getText().toString(), MessageItem.OUTGOING_MSG));
             messageItemAdapter.notifyDataSetChanged();
             recyclerView.scrollToPosition(WeTubeApplication.getSharedDataSource().getMessages().size() - 1);
             messageField.setText("");
         }
+    }
+
+    @Override
+    public void onPlaying() {
+
+    }
+
+    @Override
+    public void onPaused() {
+
+    }
+
+    @Override
+    public void onStopped() {
+
+    }
+
+    @Override
+    public void onBuffering(boolean b) {
+
+    }
+
+    @Override
+    public void onSeekTo(int i) {
+
     }
 
     private class MyServiceConnection implements ServiceConnection {
@@ -329,6 +349,19 @@ public class MainActivity extends ActionBarActivity implements VideoListFragment
         }
         @Override
         public void onIncomingMessage(MessageClient client, Message message) {
+            String msg = message.getTextBody();
+            if(msg.startsWith("/video$") && message.getSenderId().equals(WeTubeApplication.getSharedDataSource().getCurrentRecipient())){
+                currentVideo = msg.substring(7);
+
+                getFragmentManager()
+                        .beginTransaction()
+                        .hide(getFragmentManager().findFragmentById(R.id.fl_activity_video_list))
+                        .show(playerFragment)
+                        .addToBackStack(null)
+                        .commit();
+
+                youTubePlayer.loadVideo(currentVideo);
+            }
             if (message.getSenderId().equals(WeTubeApplication.getSharedDataSource().getCurrentRecipient())) {
                 WeTubeApplication.getSharedDataSource().getMessages().add(new MessageItem(message.getTextBody(), MessageItem.INCOMING_MSG));
                 messageItemAdapter.notifyDataSetChanged();
@@ -341,11 +374,16 @@ public class MainActivity extends ActionBarActivity implements VideoListFragment
         }
         //Do you want to notify your user when the message is delivered?
         @Override
-        public void onMessageDelivered(MessageClient client, MessageDeliveryInfo deliveryInfo) {}
+        public void onMessageDelivered(MessageClient client, MessageDeliveryInfo deliveryInfo) {
+            if(messageType == VIDEO_START){
+
+            }
+        }
         //Don't worry about this right now
         @Override
         public void onShouldSendPushData(MessageClient client, Message message, List<PushPair> pushPairs) {}
     }
+
 
 
 }
