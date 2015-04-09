@@ -51,6 +51,12 @@
             android:layout_height="300dp">
         </FrameLayout>
 
+        <View
+            android:id="@+id/point_item_horizontal_line"
+            android:layout_width="match_parent"
+            android:layout_height="6dp"
+            android:background="@android:color/black"/>
+
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rv_activity_main"
             android:layout_width="match_parent"
