@@ -72,8 +72,10 @@ public class MainActivity extends ActionBarActivity implements VideoListFragment
     private final int MESSAGE = 0;
     private final int VIDEO_START = 1;
     private final int VIDEO_PAUSE = 2;
+    private final int VIDEO_UNPAUSE = 3;
 
     private int messageType;
+    private boolean isPaused = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -216,6 +218,7 @@ public class MainActivity extends ActionBarActivity implements VideoListFragment
         //this.youTubePlayer.addFullscreenControlFlag(YouTubePlayer.FULLSCREEN_FLAG_ALWAYS_FULLSCREEN_IN_LANDSCAPE | YouTubePlayer.FULLSCREEN_FLAG_CONTROL_ORIENTATION);
         this.youTubePlayer.addFullscreenControlFlag(YouTubePlayer.FULLSCREEN_FLAG_CUSTOM_LAYOUT);
         this.youTubePlayer.setOnFullscreenListener(this);
+        this.youTubePlayer.setPlaybackEventListener(this);
         if (!b && currentVideo != null) {
             this.youTubePlayer.cueVideo(currentVideo);
         }
@@ -308,12 +311,18 @@ public class MainActivity extends ActionBarActivity implements VideoListFragment
 
     @Override
     public void onPlaying() {
-
+        if(isPaused){
+            isPaused = false;
+            messageType = VIDEO_UNPAUSE;
+            messageService.sendMessage(WeTubeApplication.getSharedDataSource().getCurrentRecipient(), "/unpause$");
+        }
     }
 
     @Override
     public void onPaused() {
-
+        messageType = VIDEO_PAUSE;
+        isPaused = true;
+        messageService.sendMessage(WeTubeApplication.getSharedDataSource().getCurrentRecipient(), "/pause$");
     }
 
     @Override
@@ -363,6 +372,10 @@ public class MainActivity extends ActionBarActivity implements VideoListFragment
                         .commit();
 
                 youTubePlayer.loadVideo(currentVideo);
+            }else if(msg.equals("/pause$") && message.getSenderId().equals(WeTubeApplication.getSharedDataSource().getCurrentRecipient())){
+                youTubePlayer.pause();
+            }else if(msg.equals("/unpause$") && message.getSenderId().equals(WeTubeApplication.getSharedDataSource().getCurrentRecipient())) {
+                youTubePlayer.play();
             }
             if (message.getSenderId().equals(WeTubeApplication.getSharedDataSource().getCurrentRecipient())) {
                 WeTubeApplication.getSharedDataSource().getMessages().add(new MessageItem(message.getTextBody(), MessageItem.INCOMING_MSG));
@@ -380,6 +393,12 @@ public class MainActivity extends ActionBarActivity implements VideoListFragment
             if(messageType == VIDEO_START){
                 youTubePlayer.loadVideo(currentVideo);
             }
+            if(messageType == VIDEO_PAUSE){
+                youTubePlayer.pause();
+            }
+           // if(messageType == VIDEO_UNPAUSE){
+           //     youTubePlayer.play();
+            //}
         }
         //Don't worry about this right now
         @Override
