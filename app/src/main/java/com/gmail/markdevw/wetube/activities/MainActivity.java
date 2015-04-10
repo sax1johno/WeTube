@@ -337,7 +337,7 @@ public class MainActivity extends ActionBarActivity implements VideoListFragment
 
     @Override
     public void onSeekTo(int i) {
-
+        messageService.sendMessage(WeTubeApplication.getSharedDataSource().getCurrentRecipient(), "/seek$" + i);
     }
 
     private class MyServiceConnection implements ServiceConnection {
@@ -376,6 +376,8 @@ public class MainActivity extends ActionBarActivity implements VideoListFragment
                 youTubePlayer.pause();
             }else if(msg.equals("/unpause$") && message.getSenderId().equals(WeTubeApplication.getSharedDataSource().getCurrentRecipient())) {
                 youTubePlayer.play();
+            }else if(msg.startsWith("/seek$") && message.getSenderId().equals(WeTubeApplication.getSharedDataSource().getCurrentRecipient())) {
+                youTubePlayer.seekToMillis(Integer.parseInt(msg.substring(6)));
             }
             if (message.getSenderId().equals(WeTubeApplication.getSharedDataSource().getCurrentRecipient())) {
                 WeTubeApplication.getSharedDataSource().getMessages().add(new MessageItem(message.getTextBody(), MessageItem.INCOMING_MSG));
@@ -396,9 +398,6 @@ public class MainActivity extends ActionBarActivity implements VideoListFragment
             if(messageType == VIDEO_PAUSE){
                 youTubePlayer.pause();
             }
-           // if(messageType == VIDEO_UNPAUSE){
-           //     youTubePlayer.play();
-            //}
         }
         //Don't worry about this right now
         @Override
