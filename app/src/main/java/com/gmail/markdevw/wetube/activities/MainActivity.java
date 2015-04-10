@@ -73,6 +73,9 @@ public class MainActivity extends ActionBarActivity implements VideoListFragment
     private final int VIDEO_START = 1;
     private final int VIDEO_PAUSE = 2;
     private final int VIDEO_UNPAUSE = 3;
+    private final int VIDEO_SEEK = 4;
+    private final int VIDEO_BUFFER = 5;
+
 
     private int messageType;
     private boolean isPaused = false;
@@ -332,11 +335,18 @@ public class MainActivity extends ActionBarActivity implements VideoListFragment
 
     @Override
     public void onBuffering(boolean b) {
-
+        if(b){
+            messageType = VIDEO_BUFFER;
+            messageService.sendMessage(WeTubeApplication.getSharedDataSource().getCurrentRecipient(), "/pause$");
+        }else{
+            messageType = VIDEO_BUFFER;
+            messageService.sendMessage(WeTubeApplication.getSharedDataSource().getCurrentRecipient(), "/unpause$");
+        }
     }
 
     @Override
     public void onSeekTo(int i) {
+        messageType = VIDEO_BUFFER;
         messageService.sendMessage(WeTubeApplication.getSharedDataSource().getCurrentRecipient(), "/seek$" + i);
     }
 
