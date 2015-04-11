@@ -335,7 +335,7 @@ public class MainActivity extends ActionBarActivity implements VideoListFragment
 
     @Override
     public void onBuffering(boolean b) {
-        if(b){
+       if(b){
             messageType = VIDEO_BUFFER;
             messageService.sendMessage(WeTubeApplication.getSharedDataSource().getCurrentRecipient(), "/pause$");
         }else{
@@ -346,7 +346,7 @@ public class MainActivity extends ActionBarActivity implements VideoListFragment
 
     @Override
     public void onSeekTo(int i) {
-        messageType = VIDEO_BUFFER;
+        messageType = VIDEO_SEEK;
         messageService.sendMessage(WeTubeApplication.getSharedDataSource().getCurrentRecipient(), "/seek$" + i);
     }
 
@@ -389,6 +389,7 @@ public class MainActivity extends ActionBarActivity implements VideoListFragment
             }else if(msg.startsWith("/seek$") && message.getSenderId().equals(WeTubeApplication.getSharedDataSource().getCurrentRecipient())) {
                 youTubePlayer.seekToMillis(Integer.parseInt(msg.substring(6)));
             }
+
             if (message.getSenderId().equals(WeTubeApplication.getSharedDataSource().getCurrentRecipient())) {
                 WeTubeApplication.getSharedDataSource().getMessages().add(new MessageItem(message.getTextBody(), MessageItem.INCOMING_MSG));
                 messageItemAdapter.notifyDataSetChanged();
