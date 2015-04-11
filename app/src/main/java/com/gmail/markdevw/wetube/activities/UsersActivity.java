@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -45,6 +46,7 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
     private Button logout;
     private UserItemAdapter userItemAdapter;
     private Handler handler;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -64,6 +66,8 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(userItemAdapter);
 
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.srl_activity_users);
+
         handler = new Handler();
 
         ParseLoginBuilder builder = new ParseLoginBuilder(UsersActivity.this);
@@ -81,6 +85,14 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
         ParseInstallation installation = ParseInstallation.getCurrentInstallation();
         installation.put("user", WeTubeUser.getCurrentUser().getObjectId());
         installation.saveInBackground();
+
+        swipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.primary));
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                getLoggedInUsers();
+            }
+        });
     }
 
     //show a loading spinner while the sinch client starts
@@ -113,6 +125,10 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
     public void getLoggedInUsers(){
         String currentUserId = ParseUser.getCurrentUser().getObjectId();
 
+        if(WeTubeApplication.getSharedDataSource().getUsers().size() > 0){
+            WeTubeApplication.getSharedDataSource().getUsers().clear();
+        }
+
         ParseQuery<ParseUser> query = ParseUser.getQuery();
         query.whereNotEqualTo("objectId", currentUserId);
         query.whereEqualTo("isLoggedIn", true);
@@ -130,6 +146,7 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
                             "Error loading user list",
                             Toast.LENGTH_LONG).show();
                 }
+                swipeRefreshLayout.setRefreshing(false);
             }
         });
     }
