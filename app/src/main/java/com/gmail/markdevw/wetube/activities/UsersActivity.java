@@ -59,7 +59,6 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
         logout = (Button) findViewById(R.id.activity_main_logout);
         logout.setOnClickListener(this);
 
-
         recyclerView = (RecyclerView) findViewById(R.id.rv_activity_users);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -82,7 +81,6 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
         ParseInstallation installation = ParseInstallation.getCurrentInstallation();
         installation.put("user", WeTubeUser.getCurrentUser().getObjectId());
         installation.saveInBackground();
-
     }
 
     //show a loading spinner while the sinch client starts
@@ -116,8 +114,8 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
         String currentUserId = ParseUser.getCurrentUser().getObjectId();
 
         ParseQuery<ParseUser> query = ParseUser.getQuery();
-        //don't include yourself
         query.whereNotEqualTo("objectId", currentUserId);
+        query.whereEqualTo("isLoggedIn", true);
         query.findInBackground(new FindCallback<ParseUser>() {
             public void done(List<ParseUser> userList, com.parse.ParseException e) {
                 if (e == null) {
@@ -160,5 +158,13 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
     @Override
     public void onClick(View view) {
 
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        WeTubeUser user = (WeTubeUser) ParseUser.getCurrentUser();
+        user.setLoggedStatus(false);
+        user.saveInBackground();
     }
 }
