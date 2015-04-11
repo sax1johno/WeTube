@@ -4,6 +4,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.gmail.markdevw.wetube.R;
@@ -55,20 +56,27 @@ public class UserItemAdapter extends RecyclerView.Adapter<UserItemAdapter.ItemAd
     class ItemAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         TextView name;
+        ImageView status;
         UserItem userItem;
 
         public ItemAdapterViewHolder(View itemView) {
             super(itemView);
 
             name = (TextView) itemView.findViewById(R.id.user_item_name);
+            status = (ImageView) itemView.findViewById(R.id.user_item_status);
 
             itemView.setOnClickListener(this);
         }
 
         void update(UserItem userItem) {
             this.userItem = userItem;
-
             name.setText(userItem.getName());
+
+            if(userItem.getSessionStatus()){
+                status.setImageResource(R.drawable.unavailable);
+            }else{
+                status.setImageResource(R.drawable.available);
+            }
         }
 
         @Override

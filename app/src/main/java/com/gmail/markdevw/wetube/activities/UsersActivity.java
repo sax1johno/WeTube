@@ -120,7 +120,9 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
             public void done(List<ParseUser> userList, com.parse.ParseException e) {
                 if (e == null) {
                     for (int i=0; i<userList.size(); i++) {
-                        WeTubeApplication.getSharedDataSource().getUsers().add(new UserItem(userList.get(i).getUsername(), userList.get(i).getObjectId()));
+                        WeTubeUser user = (WeTubeUser) userList.get(i);
+                        WeTubeApplication.getSharedDataSource().getUsers()
+                                .add(new UserItem(user.getUsername(), user.getObjectId(), user.getSessionStatus()));
                     }
                     userItemAdapter.notifyDataSetChanged();
                 } else {
