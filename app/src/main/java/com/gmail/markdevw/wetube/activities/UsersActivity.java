@@ -117,23 +117,26 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        startService(serviceIntent);
-        showSpinner();
-        getLoggedInUsers();
-        getUserTags();
+        if(resultCode == 0){
+            finish();
+        }else{
+            startService(serviceIntent);
+            showSpinner();
+            getLoggedInUsers();
+            getUserTags();
 
+            ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+            installation.put("user", WeTubeUser.getCurrentUser().getObjectId());
+            installation.saveInBackground();
 
-        ParseInstallation installation = ParseInstallation.getCurrentInstallation();
-        installation.put("user", WeTubeUser.getCurrentUser().getObjectId());
-        installation.saveInBackground();
-
-        swipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.primary));
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                getLoggedInUsers();
-            }
-        });
+            swipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.primary));
+            swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                @Override
+                public void onRefresh() {
+                    getLoggedInUsers();
+                }
+            });
+        }
     }
 
     private void showSpinner() {
