@@ -23,10 +23,12 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.gmail.markdevw.wetube.R;
@@ -49,7 +51,7 @@ import java.util.List;
 /**
  * Created by Mark on 4/2/2015.
  */
-public class UsersActivity extends ActionBarActivity implements UserItemAdapter.Delegate, View.OnClickListener {
+public class UsersActivity extends ActionBarActivity implements UserItemAdapter.Delegate, View.OnClickListener, AdapterView.OnItemSelectedListener {
 
     private Intent serviceIntent;
     private ProgressDialog progressDialog;
@@ -64,6 +66,10 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
     private EditText searchField;
     private Button searchButton;
     private int tagSelect;
+    private Spinner searchOptions;
+    private String searchOptionSelected;
+    ArrayAdapter<CharSequence> spinnerAdapter;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -94,6 +100,13 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
         searchButton = (Button) findViewById(R.id.activity_users_send_button);
         searchButton.setOnClickListener(this);
 
+        searchOptions = (Spinner) findViewById(R.id.activity_users_search_option);
+        spinnerAdapter = ArrayAdapter.createFromResource(this,
+                R.array.search_options, android.R.layout.simple_spinner_item);
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        searchOptions.setAdapter(spinnerAdapter);
+        searchOptions.setOnItemSelectedListener(this);
+
         handler = new Handler();
 
         ParseLoginBuilder builder = new ParseLoginBuilder(UsersActivity.this);
@@ -123,7 +136,6 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
         });
     }
 
-    //show a loading spinner while the sinch client starts
     private void showSpinner() {
         progressDialog = new ProgressDialog(this);
         progressDialog.setTitle("Loading");
@@ -210,33 +222,11 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
                     Toast.makeText(this, "Enter a search first", Toast.LENGTH_LONG).show();
                 }else{
                     swipeRefreshLayout.setRefreshing(true);
-                    String currentUserId = ParseUser.getCurrentUser().getObjectId();
-                    ParseQuery<ParseUser> query = ParseUser.getQuery();
-                    query.whereNotEqualTo("objectId", currentUserId);
-                    query.whereEqualTo("tags", searchField.getText().toString());
-                    query.findInBackground(new FindCallback<ParseUser>() {
-                        public void done(List<ParseUser> userList, com.parse.ParseException e) {
-                            if (e == null) {
-                                if(userList.size() == 0){
-                                    Toast.makeText(WeTubeApplication.getSharedInstance(),
-                                            "Could not find any logged in users with that tag",
-                                            Toast.LENGTH_LONG).show();
-                                }
-                                for (int i=0; i<userList.size(); i++) {
-                                    WeTubeUser user = (WeTubeUser) userList.get(i);
-                                    WeTubeApplication.getSharedDataSource().getUsers().clear();
-                                    WeTubeApplication.getSharedDataSource().getUsers()
-                                            .add(new UserItem(user.getUsername(), user.getObjectId(), user.getSessionStatus()));
-                                }
-                                userItemAdapter.notifyDataSetChanged();
-                                swipeRefreshLayout.setRefreshing(false);
-                            } else {
-                                Toast.makeText(WeTubeApplication.getSharedInstance(),
-                                        "Error loading user list",
-                                        Toast.LENGTH_LONG).show();
-                            }
-                        }
-                    });
+                    if(searchOptionSelected.equals("User")){
+                        searchByUser();
+                    }else{
+                        searchByTag();
+                    }
                 }
                 break;
         }
@@ -368,6 +358,76 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
                         adapter.addAll(tags);
                         adapter.notifyDataSetChanged();
                     }
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+        searchOptionSelected = (String) parent.getItemAtPosition(pos);
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> adapterView) {
+
+    }
+
+    public void searchByTag(){
+        String currentUserId = ParseUser.getCurrentUser().getObjectId();
+        ParseQuery<ParseUser> query = ParseUser.getQuery();
+        query.whereNotEqualTo("objectId", currentUserId);
+        query.whereEqualTo("tags", searchField.getText().toString());
+        query.findInBackground(new FindCallback<ParseUser>() {
+            public void done(List<ParseUser> userList, com.parse.ParseException e) {
+                if (e == null) {
+                    if(userList.size() == 0){
+                        Toast.makeText(WeTubeApplication.getSharedInstance(),
+                                "Could not find any logged in users with that tag",
+                                Toast.LENGTH_LONG).show();
+                    }
+                    WeTubeApplication.getSharedDataSource().getUsers().clear();
+                    for (int i=0; i<userList.size(); i++) {
+                        WeTubeUser user = (WeTubeUser) userList.get(i);
+                        WeTubeApplication.getSharedDataSource().getUsers()
+                                .add(new UserItem(user.getUsername(), user.getObjectId(), user.getSessionStatus()));
+                    }
+                    userItemAdapter.notifyDataSetChanged();
+                    swipeRefreshLayout.setRefreshing(false);
+                } else {
+                    Toast.makeText(WeTubeApplication.getSharedInstance(),
+                            "Error loading user list",
+                            Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+    }
+
+    private void searchByUser() {
+        String currentUserId = ParseUser.getCurrentUser().getObjectId();
+        ParseQuery<ParseUser> query = ParseUser.getQuery();
+        query.whereNotEqualTo("objectId", currentUserId);
+        query.whereStartsWith("username", searchField.getText().toString());
+        query.findInBackground(new FindCallback<ParseUser>() {
+            public void done(List<ParseUser> userList, com.parse.ParseException e) {
+                if (e == null) {
+                    if(userList.size() == 0){
+                        Toast.makeText(WeTubeApplication.getSharedInstance(),
+                                "Could not find any logged in users with that name",
+                                Toast.LENGTH_LONG).show();
+                    }
+                    WeTubeApplication.getSharedDataSource().getUsers().clear();
+                    for (int i=0; i<userList.size(); i++) {
+                        WeTubeUser user = (WeTubeUser) userList.get(i);
+                        WeTubeApplication.getSharedDataSource().getUsers()
+                                .add(new UserItem(user.getUsername(), user.getObjectId(), user.getSessionStatus()));
+                    }
+                    userItemAdapter.notifyDataSetChanged();
+                    swipeRefreshLayout.setRefreshing(false);
+                } else {
+                    Toast.makeText(WeTubeApplication.getSharedInstance(),
+                            "Error loading user list",
+                            Toast.LENGTH_LONG).show();
                 }
             }
         });

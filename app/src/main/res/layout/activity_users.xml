@@ -11,7 +11,7 @@
         android:background="?attr/colorPrimary"/>
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
@@ -27,6 +27,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Search"/>
+
+        <Spinner
+            android:id="@+id/activity_users_search_option"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
 
      </LinearLayout>
 
