@@ -35,6 +35,7 @@ public class DataSource {
     private String currentRecipient;
     private final long NUMBER_OF_VIDEOS_RETURNED = 20;
     private List<MessageItem> messages = new ArrayList<>();
+    private List<String> tags = new ArrayList<>();
 
     public DataSource(Context context){
         videos = new ArrayList<VideoItem>();
@@ -60,6 +61,7 @@ public class DataSource {
         }
     }
 
+    public List<String> getTags() { return tags; }
     public List<MessageItem> getMessages() { return messages;}
     public void setCurrentRecipient(String recipient){ this.currentRecipient = recipient;}
     public String getCurrentRecipient() { return this.currentRecipient; }

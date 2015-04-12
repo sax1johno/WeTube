@@ -1,8 +1,10 @@
 package com.gmail.markdevw.wetube.activities;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
@@ -13,8 +15,18 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
+import android.text.InputType;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.gmail.markdevw.wetube.R;
@@ -47,11 +59,19 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
     private UserItemAdapter userItemAdapter;
     private Handler handler;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private Toolbar toolbar;
+    private ArrayAdapter<String> adapter;
+    private int tagSelect;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_users);
+
+        adapter = new ArrayAdapter<String>(this, android.R.layout.select_dialog_singlechoice);
+
+        toolbar = (Toolbar) findViewById(R.id.tb_activity_users);
+        setSupportActionBar(toolbar);
 
         serviceIntent = new Intent(getApplicationContext(), MessageService.class);
 
@@ -185,5 +205,106 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
         WeTubeUser user = (WeTubeUser) ParseUser.getCurrentUser();
         user.setLoggedStatus(false);
         user.saveInBackground();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.activity_users, menu);
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+            case R.id.action_profile:
+                AlertDialog.Builder categBuilder = new AlertDialog.Builder(this);
+
+                LayoutInflater inflater = this.getLayoutInflater();
+                View dialogView = inflater.inflate(R.layout.category_dialog, null);
+
+                ImageButton add = (ImageButton) dialogView.findViewById(R.id.category_dialog_add_button);
+                ImageButton minus = (ImageButton) dialogView.findViewById(R.id.category_dialog_minus_button);
+
+                add.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        AlertDialog.Builder newCateg = new AlertDialog.Builder(UsersActivity.this);
+                        newCateg.setTitle("Add a new tag");
+
+                        final EditText input = new EditText(UsersActivity.this);
+                        input.setInputType(InputType.TYPE_CLASS_TEXT);
+                        newCateg.setView(input);
+
+                        newCateg.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(final DialogInterface dialog, int which) {
+                                if(WeTubeApplication.getSharedDataSource().getTags().contains(input.getText().toString())){
+                                    Toast.makeText(getApplicationContext(), input.getText().toString() + " already exists", Toast.LENGTH_LONG).show();
+                                }else if(input.getText().toString().isEmpty()){
+                                    Toast.makeText(getApplicationContext(), "Enter a tag first", Toast.LENGTH_LONG).show();
+                                }else{
+                                    adapter.add(input.getText().toString());
+                                    WeTubeApplication.getSharedDataSource().getTags().add(input.getText().toString());
+                                    adapter.notifyDataSetChanged();
+                                }
+                                InputMethodManager imm = (InputMethodManager)UsersActivity.this.getSystemService(Context.INPUT_METHOD_SERVICE);
+                                imm.hideSoftInputFromWindow(input.getWindowToken(), 0);
+                                dialog.dismiss();
+                               /// if(BlocSpotApplication.getSharedDataSource().searchForCategory(input.getText().toString())){
+                                //    Toast.makeText(getApplicationContext(), "Category already exists", Toast.LENGTH_LONG).show();
+                              //  }else{
+                                    //for(int i = 0; i<BlocSpotApplication.getSharedDataSource().getCategoryColors().size(); i++){
+                                      //  if(BlocSpotApplication.getSharedDataSource().searchForColor(BlocSpotApplication.getSharedDataSource().getCategoryColors().get(i))){
+                                       //     continue;
+                                       // }
+                                       // else{
+                                           // BlocSpotApplication.getSharedDataSource().insertCategory(input.getText().toString(), BlocSpotApplication.getSharedDataSource().getCategoryColors().get(i));
+
+                                          //  break;
+                                       // }
+                                 //   }
+                                //}
+                            }
+                        });
+                        newCateg.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        });
+                        newCateg.show();
+
+                        input.requestFocus();
+                        InputMethodManager imm = (InputMethodManager)UsersActivity.this.getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+                    }
+                });
+                minus.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if(WeTubeApplication.getSharedDataSource().getTags().size() > 0){
+                            WeTubeApplication.getSharedDataSource().getTags().remove(adapter.getItem(tagSelect));
+                            adapter.remove(adapter.getItem(tagSelect));
+                            adapter.notifyDataSetChanged();
+                        }else{
+                            Toast.makeText(getApplicationContext(), "Nothing to remove", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
+
+                adapter.clear();
+                adapter.addAll(WeTubeApplication.getSharedDataSource().getTags());
+                categBuilder.setView(dialogView);
+                categBuilder.setSingleChoiceItems(adapter, 0, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        tagSelect = which;
+                    }
+                });
+                categBuilder.show();
+
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
