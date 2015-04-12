@@ -245,6 +245,16 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
                                 }else if(input.getText().toString().isEmpty()){
                                     Toast.makeText(getApplicationContext(), "Enter a tag first", Toast.LENGTH_LONG).show();
                                 }else{
+                                    HashMap<String, Object> params = new HashMap<String, Object>();
+                                    params.put("tag", input.getText().toString());
+                                    params.put("userId", WeTubeUser.getCurrentUser().getObjectId());
+                                    ParseCloud.callFunctionInBackground("addTag", params, new FunctionCallback<String>() {
+                                        @Override
+                                        public void done(String mapObject, com.parse.ParseException e) {
+
+                                        }
+                                    });
+
                                     adapter.add(input.getText().toString());
                                     WeTubeApplication.getSharedDataSource().getTags().add(input.getText().toString());
                                     adapter.notifyDataSetChanged();
@@ -252,20 +262,6 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
                                 InputMethodManager imm = (InputMethodManager)UsersActivity.this.getSystemService(Context.INPUT_METHOD_SERVICE);
                                 imm.hideSoftInputFromWindow(input.getWindowToken(), 0);
                                 dialog.dismiss();
-                               /// if(BlocSpotApplication.getSharedDataSource().searchForCategory(input.getText().toString())){
-                                //    Toast.makeText(getApplicationContext(), "Category already exists", Toast.LENGTH_LONG).show();
-                              //  }else{
-                                    //for(int i = 0; i<BlocSpotApplication.getSharedDataSource().getCategoryColors().size(); i++){
-                                      //  if(BlocSpotApplication.getSharedDataSource().searchForColor(BlocSpotApplication.getSharedDataSource().getCategoryColors().get(i))){
-                                       //     continue;
-                                       // }
-                                       // else{
-                                           // BlocSpotApplication.getSharedDataSource().insertCategory(input.getText().toString(), BlocSpotApplication.getSharedDataSource().getCategoryColors().get(i));
-
-                                          //  break;
-                                       // }
-                                 //   }
-                                //}
                             }
                         });
                         newCateg.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -284,12 +280,25 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
                 minus.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if(WeTubeApplication.getSharedDataSource().getTags().size() > 0){
+                        if(WeTubeApplication.getSharedDataSource().getTags().size() == 0){
+                            Toast.makeText(getApplicationContext(), "No tags to remove", Toast.LENGTH_LONG).show();
+                        }else if(tagSelect >= WeTubeApplication.getSharedDataSource().getTags().size()){
+                            Toast.makeText(getApplicationContext(), "Select a tag before deleting", Toast.LENGTH_LONG).show();
+                        }else if(WeTubeApplication.getSharedDataSource().getTags().size() > 0) {
+
+                            HashMap<String, Object> params = new HashMap<String, Object>();
+                            params.put("tag", adapter.getItem(tagSelect));
+                            params.put("userId", WeTubeUser.getCurrentUser().getObjectId());
+                            ParseCloud.callFunctionInBackground("removeTag", params, new FunctionCallback<String>() {
+                                @Override
+                                public void done(String mapObject, com.parse.ParseException e) {
+
+                                }
+                            });
+
                             WeTubeApplication.getSharedDataSource().getTags().remove(adapter.getItem(tagSelect));
                             adapter.remove(adapter.getItem(tagSelect));
                             adapter.notifyDataSetChanged();
-                        }else{
-                            Toast.makeText(getApplicationContext(), "Nothing to remove", Toast.LENGTH_LONG).show();
                         }
                     }
                 });
