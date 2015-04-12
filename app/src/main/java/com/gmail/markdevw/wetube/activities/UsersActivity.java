@@ -101,6 +101,8 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
         startService(serviceIntent);
         showSpinner();
         getLoggedInUsers();
+        getUserTags();
+
 
         ParseInstallation installation = ParseInstallation.getCurrentInstallation();
         installation.put("user", WeTubeUser.getCurrentUser().getObjectId());
@@ -303,8 +305,6 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
                     }
                 });
 
-                adapter.clear();
-                adapter.addAll(WeTubeApplication.getSharedDataSource().getTags());
                 categBuilder.setView(dialogView);
                 categBuilder.setSingleChoiceItems(adapter, 0, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
@@ -315,5 +315,24 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
 
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void getUserTags(){
+        String currentUserId = ParseUser.getCurrentUser().getObjectId();
+
+        ParseQuery<ParseUser> query = ParseUser.getQuery();
+        query.whereEqualTo("objectId", currentUserId);
+        query.findInBackground(new FindCallback<ParseUser>() {
+            public void done(List<ParseUser> userList, com.parse.ParseException e) {
+                if (e == null) {
+                    WeTubeUser user = (WeTubeUser) userList.get(0);
+                    if (user.getList("tags")!=null) {
+                        List<String> tags = user.getList("tags");
+                        adapter.addAll(tags);
+                        adapter.notifyDataSetChanged();
+                    }
+                }
+            }
+        });
     }
 }
