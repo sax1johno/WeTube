@@ -172,6 +172,7 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
         ParseQuery<ParseUser> query = ParseUser.getQuery();
         query.whereNotEqualTo("objectId", currentUserId);
         query.whereEqualTo("isLoggedIn", true);
+        query.orderByAscending("username");
         query.findInBackground(new FindCallback<ParseUser>() {
             public void done(List<ParseUser> userList, com.parse.ParseException e) {
                 if (e == null) {
@@ -378,6 +379,7 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
         ParseQuery<ParseUser> query = ParseUser.getQuery();
         query.whereNotEqualTo("objectId", currentUserId);
         query.whereEqualTo("tags", searchField.getText().toString());
+        query.orderByAscending("username");
         query.findInBackground(new FindCallback<ParseUser>() {
             public void done(List<ParseUser> userList, com.parse.ParseException e) {
                 if (e == null) {
@@ -408,6 +410,7 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
         ParseQuery<ParseUser> query = ParseUser.getQuery();
         query.whereNotEqualTo("objectId", currentUserId);
         query.whereStartsWith("username", searchField.getText().toString());
+        query.orderByAscending("username");
         query.findInBackground(new FindCallback<ParseUser>() {
             public void done(List<ParseUser> userList, com.parse.ParseException e) {
                 if (e == null) {
