@@ -61,6 +61,8 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
     private SwipeRefreshLayout swipeRefreshLayout;
     private Toolbar toolbar;
     private ArrayAdapter<String> adapter;
+    private EditText searchField;
+    private Button searchButton;
     private int tagSelect;
 
     @Override
@@ -87,6 +89,10 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
         recyclerView.setAdapter(userItemAdapter);
 
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.srl_activity_users);
+
+        searchField = (EditText) findViewById(R.id.activity_users_search);
+        searchButton = (Button) findViewById(R.id.activity_users_send_button);
+        searchButton.setOnClickListener(this);
 
         handler = new Handler();
 
@@ -198,7 +204,42 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
 
     @Override
     public void onClick(View view) {
-
+        switch(view.getId()){
+            case R.id.activity_users_send_button:
+                if(searchField.getText().toString().isEmpty()){
+                    Toast.makeText(this, "Enter a search first", Toast.LENGTH_LONG).show();
+                }else{
+                    swipeRefreshLayout.setRefreshing(true);
+                    String currentUserId = ParseUser.getCurrentUser().getObjectId();
+                    ParseQuery<ParseUser> query = ParseUser.getQuery();
+                    query.whereNotEqualTo("objectId", currentUserId);
+                    query.whereEqualTo("tags", searchField.getText().toString());
+                    query.findInBackground(new FindCallback<ParseUser>() {
+                        public void done(List<ParseUser> userList, com.parse.ParseException e) {
+                            if (e == null) {
+                                if(userList.size() == 0){
+                                    Toast.makeText(WeTubeApplication.getSharedInstance(),
+                                            "Could not find any logged in users with that tag",
+                                            Toast.LENGTH_LONG).show();
+                                }
+                                for (int i=0; i<userList.size(); i++) {
+                                    WeTubeUser user = (WeTubeUser) userList.get(i);
+                                    WeTubeApplication.getSharedDataSource().getUsers().clear();
+                                    WeTubeApplication.getSharedDataSource().getUsers()
+                                            .add(new UserItem(user.getUsername(), user.getObjectId(), user.getSessionStatus()));
+                                }
+                                userItemAdapter.notifyDataSetChanged();
+                                swipeRefreshLayout.setRefreshing(false);
+                            } else {
+                                Toast.makeText(WeTubeApplication.getSharedInstance(),
+                                        "Error loading user list",
+                                        Toast.LENGTH_LONG).show();
+                            }
+                        }
+                    });
+                }
+                break;
+        }
     }
 
     @Override
