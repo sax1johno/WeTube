@@ -15,6 +15,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -118,6 +119,8 @@ public class MainActivity extends ActionBarActivity implements VideoListFragment
         messageField = (EditText) findViewById(R.id.activity_main_message_field);
         sendMessage = (Button) findViewById(R.id.activity_main_send_button);
         sendMessage.setOnClickListener(this);
+
+        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
         handler = new Handler();
     }
