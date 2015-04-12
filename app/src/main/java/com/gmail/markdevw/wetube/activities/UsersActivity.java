@@ -242,7 +242,7 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
                         newCateg.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(final DialogInterface dialog, int which) {
-                                if(WeTubeApplication.getSharedDataSource().getTags().contains(input.getText().toString())){
+                                if(adapter.getPosition(input.getText().toString()) != -1){
                                     Toast.makeText(getApplicationContext(), input.getText().toString() + " already exists", Toast.LENGTH_LONG).show();
                                 }else if(input.getText().toString().isEmpty()){
                                     Toast.makeText(getApplicationContext(), "Enter a tag first", Toast.LENGTH_LONG).show();
@@ -256,9 +256,7 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
 
                                         }
                                     });
-
                                     adapter.add(input.getText().toString());
-                                    WeTubeApplication.getSharedDataSource().getTags().add(input.getText().toString());
                                     adapter.notifyDataSetChanged();
                                 }
                                 InputMethodManager imm = (InputMethodManager)UsersActivity.this.getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -282,11 +280,11 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
                 minus.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if(WeTubeApplication.getSharedDataSource().getTags().size() == 0){
+                        if(adapter.getCount() == 0){
                             Toast.makeText(getApplicationContext(), "No tags to remove", Toast.LENGTH_LONG).show();
-                        }else if(tagSelect >= WeTubeApplication.getSharedDataSource().getTags().size()){
+                        }else if(tagSelect >= adapter.getCount()){
                             Toast.makeText(getApplicationContext(), "Select a tag before deleting", Toast.LENGTH_LONG).show();
-                        }else if(WeTubeApplication.getSharedDataSource().getTags().size() > 0) {
+                        }else if(adapter.getCount() > 0) {
 
                             HashMap<String, Object> params = new HashMap<String, Object>();
                             params.put("tag", adapter.getItem(tagSelect));
@@ -297,8 +295,6 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
 
                                 }
                             });
-
-                            WeTubeApplication.getSharedDataSource().getTags().remove(adapter.getItem(tagSelect));
                             adapter.remove(adapter.getItem(tagSelect));
                             adapter.notifyDataSetChanged();
                         }
