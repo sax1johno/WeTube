@@ -26,6 +26,7 @@ public class DataSource {
     private String API_KEY = "AIzaSyDqalWrQoW2KoHoYLoyKl-FhncIQd2C3Rk";
     private List<VideoItem> videos;
     private List<UserItem> users;
+    private List<UserItem> friends;
     private YouTube youtube;
     private YouTube.Search.List query;
     private int currentPage = 0;
@@ -40,6 +41,7 @@ public class DataSource {
     public DataSource(Context context){
         videos = new ArrayList<VideoItem>();
         users = new ArrayList<UserItem>();
+        friends = new ArrayList<UserItem>();
         youtube = new YouTube.Builder(new NetHttpTransport(),
                 new JacksonFactory(), new HttpRequestInitializer() {
             @Override
@@ -69,6 +71,7 @@ public class DataSource {
         return videos;
     }
     public List<UserItem> getUsers() { return users; }
+    public List<UserItem> getFriends() { return friends; }
     public int getCurrentPage(){ return currentPage; }
     public void setCurrentPage(int currentPage) { this.currentPage = currentPage; }
     public void setPrevPageToken(String prevPageToken){ this.prevPageToken = prevPageToken; }

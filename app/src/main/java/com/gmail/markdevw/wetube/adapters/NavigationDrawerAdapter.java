@@ -45,12 +45,12 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
     @Override
     public void onBindViewHolder(ItemAdapterViewHolder itemAdapterViewHolder, int index) {
         DataSource sharedDataSource = WeTubeApplication.getSharedDataSource();
-        itemAdapterViewHolder.update(sharedDataSource.getUsers().get(index));
+        itemAdapterViewHolder.update(sharedDataSource.getFriends().get(index));
     }
 
     @Override
     public int getItemCount() {
-        return WeTubeApplication.getSharedDataSource().getUsers().size();
+        return WeTubeApplication.getSharedDataSource().getFriends().size();
     }
 
     class ItemAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -72,7 +72,9 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
             this.userItem = userItem;
             name.setText(userItem.getName());
 
-            if(userItem.getSessionStatus()){
+            if(!userItem.getOnlineStatus()){
+                status.setImageResource(R.drawable.offline);
+            }else if(userItem.getSessionStatus()){
                 status.setImageResource(R.drawable.unavailable);
             }else{
                 status.setImageResource(R.drawable.available);

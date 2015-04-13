@@ -7,12 +7,14 @@ public class UserItem {
     String name;
     String id;
     boolean isInSession;
+    boolean isLoggedIn;
 
-    public UserItem(String name, String id, boolean isInSession){
+    public UserItem(String name, String id, boolean isInSession, boolean isLoggedIn){
 
         setName(name);
         setId(id);
         setSessionStatus(isInSession);
+        setOnlineStatus(isLoggedIn);
     }
 
     public String getName() { return name;}
@@ -21,5 +23,7 @@ public class UserItem {
     public void setId(String id) {this.id = id; }
     public boolean getSessionStatus() { return isInSession; }
     public void setSessionStatus(boolean isInSession) {this.isInSession = isInSession; }
+    public boolean getOnlineStatus() { return isLoggedIn; }
+    public void setOnlineStatus(boolean isLoggedIn) {this.isLoggedIn = isLoggedIn; }
 
 }

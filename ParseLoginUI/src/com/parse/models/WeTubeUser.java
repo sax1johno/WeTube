@@ -19,6 +19,7 @@ public class WeTubeUser extends ParseUser {
     public void setLoggedStatus(boolean isLoggedIn) {
         put("isLoggedIn", isLoggedIn);
     }
+    public boolean getLoggedStatus() { return getBoolean("isLoggedIn"); }
     public void setSessionStatus(boolean isInSession) { put("isInSession", isInSession); }
     public boolean getSessionStatus() { return getBoolean("isInSession"); }
 }
