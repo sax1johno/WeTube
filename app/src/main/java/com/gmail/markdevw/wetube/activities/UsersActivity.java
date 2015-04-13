@@ -7,11 +7,14 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -33,6 +36,7 @@ import android.widget.Toast;
 
 import com.gmail.markdevw.wetube.R;
 import com.gmail.markdevw.wetube.WeTubeApplication;
+import com.gmail.markdevw.wetube.adapters.NavigationDrawerAdapter;
 import com.gmail.markdevw.wetube.adapters.UserItemAdapter;
 import com.gmail.markdevw.wetube.api.model.UserItem;
 import com.gmail.markdevw.wetube.services.MessageService;
@@ -69,6 +73,10 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
     private Spinner searchOptions;
     private String searchOptionSelected;
     ArrayAdapter<CharSequence> spinnerAdapter;
+    private ActionBarDrawerToggle drawerToggle;
+    private DrawerLayout drawerLayout;
+    private NavigationDrawerAdapter navigationDrawerAdapter;
+    RecyclerView navigationRecyclerView;
 
 
     @Override
@@ -80,6 +88,17 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
 
         toolbar = (Toolbar) findViewById(R.id.tb_activity_users);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        drawerLayout = (DrawerLayout) findViewById(R.id.dl_activity_blocly);
+        drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, 0, 0);
+        drawerLayout.setDrawerListener(drawerToggle);
+
+        navigationDrawerAdapter = new NavigationDrawerAdapter();
+        navigationRecyclerView = (RecyclerView) findViewById(R.id.rv_nav_activity_users);
+        navigationRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        navigationRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        navigationRecyclerView.setAdapter(navigationDrawerAdapter);
 
         serviceIntent = new Intent(getApplicationContext(), MessageService.class);
 
@@ -106,6 +125,8 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         searchOptions.setAdapter(spinnerAdapter);
         searchOptions.setOnItemSelectedListener(this);
+
+
 
         handler = new Handler();
 
@@ -254,6 +275,11 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
+        if (drawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+
         switch(item.getItemId()) {
             case R.id.action_profile:
                 AlertDialog.Builder categBuilder = new AlertDialog.Builder(this);
@@ -382,6 +408,7 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
         ParseQuery<ParseUser> query = ParseUser.getQuery();
         query.whereNotEqualTo("objectId", currentUserId);
         query.whereEqualTo("tags", searchField.getText().toString());
+        query.whereEqualTo("isLoggedIn", true);
         query.orderByAscending("username");
         query.findInBackground(new FindCallback<ParseUser>() {
             public void done(List<ParseUser> userList, com.parse.ParseException e) {
@@ -412,6 +439,7 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
         String currentUserId = ParseUser.getCurrentUser().getObjectId();
         ParseQuery<ParseUser> query = ParseUser.getQuery();
         query.whereNotEqualTo("objectId", currentUserId);
+        query.whereEqualTo("isLoggedIn", true);
         query.whereStartsWith("username", searchField.getText().toString());
         query.orderByAscending("username");
         query.findInBackground(new FindCallback<ParseUser>() {
@@ -437,5 +465,17 @@ public class UsersActivity extends ActionBarActivity implements UserItemAdapter.
                 }
             }
         });
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        drawerToggle.syncState();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        drawerToggle.onConfigurationChanged(newConfig);
     }
 }
